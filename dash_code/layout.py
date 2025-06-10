@@ -25,11 +25,11 @@ def create_layout(dic_date, dic_match, dic_joueur):
                                     dmc.GridCol(
                                         children=[
                                             dmc.Badge("Choisir match", size="lg", radius="lg", color="blue"),
-                                            dmc.Select(label="Date", id="select_date", data=dic_date, searchable=True, clearable=True, w=200),
-                                            dmc.Select(label="Match", id="select_match", data=dic_match, searchable=True, clearable=True, w=200),
+                                            dmc.Select(label="Date", id="select_date", data=dic_date, searchable=True, clearable=True, w="80%"),
+                                            dmc.Select(label="Match", id="select_match", data=dic_match, searchable=True, clearable=True, w="80%"),
                                             html.Br(),
                                             dmc.Badge("Choisir joueur", size="lg", radius="lg", color="violet"),
-                                            dmc.Select(label="Joueur", id="select_joueur", data=dic_joueur, searchable=True, clearable=True, w=200),
+                                            dmc.Select(label="Joueur", id="select_joueur", data=dic_joueur, searchable=True, clearable=True, w="80%"),
                                         ],
                                         span=2
                                     ),
@@ -71,14 +71,14 @@ def create_layout(dic_date, dic_match, dic_joueur):
                                     dmc.GridCol(
                                         children=[
                                             dmc.Badge("Choisir match", size="lg", radius="lg", color="blue"),
-                                            dmc.Select(label="Date", id="select_date_video", data=dic_date, searchable=True, clearable=True, w=200),
-                                            dmc.Select(label="Match", id="select_match_video", data=dic_match, searchable=True, clearable=True, w=200),
+                                            dmc.Select(label="Date", id="select_date_video", data=dic_date, searchable=True, clearable=True, w="80%"),
+                                            dmc.Select(label="Match", id="select_match_video", data=dic_match, searchable=True, clearable=True, w="80%"),
                                             html.Br(),
                                             dmc.Badge("Choisir joueur", size="lg", radius="lg", color="violet"),
-                                            dmc.Select(label="Joueur", id="select_joueur_video", data=dic_joueur, searchable=True, clearable=True, w=200),
+                                            dmc.Select(label="Joueur", id="select_joueur_video", data=dic_joueur, searchable=True, clearable=True, w="80%"),
                                             html.Br(),
                                             dmc.Badge("Choisir métrique", size="lg", radius="lg", color="grape"),
-                                            dmc.Select(label="Métrique", id="select_metrique_video", data=[{"value": "vitesse max.", "label": "vitesse max."}], searchable=True, clearable=True, w=200),
+                                            dmc.Select(label="Métrique", id="select_metrique_video", data=[{"value": "vitesse max.", "label": "vitesse max."}], searchable=True, clearable=True, w="80%"),
                                         ],
                                         span=2
                                     ),
