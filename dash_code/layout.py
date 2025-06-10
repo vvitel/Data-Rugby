@@ -85,7 +85,7 @@ def create_layout(dic_date, dic_match, dic_joueur):
                                     # Affichage de la vidéo
                                     dmc.GridCol(
                                         children=[
-                                            dmc.Center(dmc.Title("Visualisation vidéo", order=1, mt="lg")),
+                                            dmc.Center(dmc.Title("Visualisation des vidéos", order=1, mt="lg")),
                                             dmc.Center(html.Div([html.Video(id="html_video", src="", controls=True, width=960 , height=540, style={"display": "none"})]))
                                         ],
                                         span=10
@@ -97,8 +97,26 @@ def create_layout(dic_date, dic_match, dic_joueur):
                     ),
                 dmc.TabsPanel(
                         children=[
+                            dmc.Center(dmc.Title("Annotation des matchs", order=1, mt="lg")),
                             html.Br(),
-                        ],
+                            # Ligne 1
+                            dmc.Group(children=[dmc.Button("Début MT1", color="green"),
+                                                dmc.Button("Fin MT1", color="red"),
+                                                dmc.Button("Touche", color="blue")],
+                                      grow=True, wrap="nowrap"),
+                            html.Br(),
+                            # Ligne 2
+                            dmc.Group(children=[dmc.Button("Début MT2", color="green"),
+                                                dmc.Button("Fin MT2", color="red"),
+                                                dmc.Button("Mêlée", color="blue")],
+                                      grow=True, wrap="nowrap"),
+                            html.Br(),
+                            # Ligne 3
+                            dmc.Group(children=[dmc.TextInput(placeholder="Match", size="sm"),
+                                                dmc.Button("Envoyer", color="violet"),
+                                                dmc.Button("Essai", color="blue")],
+                                      grow=True, wrap="nowrap")],
+                            
                         value="tab_annot"
                     ),
                 ],

@@ -97,8 +97,8 @@ def create_barplot_speeddistance(date, match, joueur):
     elif joueur:
         # Filtrer les données en fonction de la valeurs des selects
         df_filter = df[(df["player"]== joueur)]
-        if date : df_filter = df[(df["date"]== date)]
-        if match : df_filter = df[(df["game"]== match)]
+        if date : df_filter = df_filter[(df_filter["date"]== date)]
+        if match : df_filter = df_filter[(df_filter["game"]== match)]
         lst_data = format_for_barplot_speeddistance(df_filter, "game")
         height_barplot = 400 if 40 * len(lst_data) < 400 else 40 * len(lst_data)
         return lst_data, "nom", lst_color, height_barplot, {"display": "block"}, {"display": "block"}
