@@ -25,11 +25,11 @@ def create_layout(dic_date, dic_match, dic_joueur):
                                     dmc.GridCol(
                                         children=[
                                             dmc.Badge("Choisir match", size="lg", radius="lg", color="blue"),
-                                            dmc.Select(label="Date", id="select_date", data=dic_date, searchable=True, clearable=True, w="80%"),
-                                            dmc.Select(label="Match", id="select_match", data=dic_match, searchable=True, clearable=True, w="80%"),
+                                            dmc.Select(label="Date", id="select_date", data=dic_date, searchable=True, clearable=True, w="100%"),
+                                            dmc.Select(label="Match", id="select_match", data=dic_match, searchable=True, clearable=True, w="100%"),
                                             html.Br(),
                                             dmc.Badge("Choisir joueur", size="lg", radius="lg", color="violet"),
-                                            dmc.Select(label="Joueur", id="select_joueur", data=dic_joueur, searchable=True, clearable=True, w="80%"),
+                                            dmc.Select(label="Joueur", id="select_joueur", data=dic_joueur, searchable=True, clearable=True, w="100%")
                                         ],
                                         span=2
                                     ),
@@ -41,9 +41,9 @@ def create_layout(dic_date, dic_match, dic_joueur):
                                             dmc.Title("Distances parcourues par zone de vitesse", id="title_barplot", order=3, mt="lg", style={"display": "none"}),
                                             dmc.BarChart(id="barplot_dist", h=0, dataKey="", data=[], type="stacked", orientation="vertical", series=[], style={"display": "none"}),
                                             html.Br(),
-                                            dmc.Group(children=[dmc.Title("Vitesses et accélérations maximales", id="title_scatterspeedaccel", order=3, mt="lg", style={"display": "none"}),
+                                            dmc.Group(children=[dmc.Title("Vitesse et accélération maximale", id="title_scatterspeedaccel", order=3, mt="lg", style={"display": "none"}),
                                                                 dmc.Title("Nombre d'accélération", id="title_nbaccel", order=3, mt="lg", style={"display": "none"})],
-                                                      grow=True, justify="space-around"),
+                                                      grow=True, gap="xl", justify="space-around"),
                                             dmc.Group(children=[dmc.ScatterChart(id="scatter_vitesse_accel", h=300, data=[], dataKey={"x": "vitesse", "y": "acceleration"}, xAxisLabel="Vitesse (km/h)", yAxisLabel="Accélération (m/s)", xAxisProps={"domain": [17, 30]}, yAxisProps={"domain": [2, 7]}, withLegend=True, legendProps={"verticalAlign": "bottom", "height": 10}, style={"display": "none"}),
                                                                 dmc.BarChart(id="barplot_accel", h=400, dataKey="", data=[], type="stacked", orientation="vertical", series=[], withBarValueLabel=True, style={"display": "none"})],
                                                       grow=True),
@@ -71,14 +71,14 @@ def create_layout(dic_date, dic_match, dic_joueur):
                                     dmc.GridCol(
                                         children=[
                                             dmc.Badge("Choisir match", size="lg", radius="lg", color="blue"),
-                                            dmc.Select(label="Date", id="select_date_video", data=dic_date, searchable=True, clearable=True, w="80%"),
-                                            dmc.Select(label="Match", id="select_match_video", data=dic_match, searchable=True, clearable=True, w="80%"),
+                                            dmc.Select(label="Date", id="select_date_video", data=dic_date, searchable=True, clearable=True, w="100%"),
+                                            dmc.Select(label="Match", id="select_match_video", data=dic_match, searchable=True, clearable=True, w="100%"),
                                             html.Br(),
                                             dmc.Badge("Choisir joueur", size="lg", radius="lg", color="violet"),
-                                            dmc.Select(label="Joueur", id="select_joueur_video", data=dic_joueur, searchable=True, clearable=True, w="80%"),
+                                            dmc.Select(label="Joueur", id="select_joueur_video", data=dic_joueur, searchable=True, clearable=True, w="100%"),
                                             html.Br(),
                                             dmc.Badge("Choisir métrique", size="lg", radius="lg", color="grape"),
-                                            dmc.Select(label="Métrique", id="select_metrique_video", data=[{"value": "vitesse max.", "label": "vitesse max."}], searchable=True, clearable=True, w="80%"),
+                                            dmc.Select(label="Métrique", id="select_metrique_video", data=[{"value": "vitesse max.", "label": "vitesse max."}], searchable=True, clearable=True, w="100%"),
                                         ],
                                         span=2
                                     ),

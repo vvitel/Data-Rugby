@@ -27,7 +27,7 @@ def format_for_barplot_speeddistance(filter_df, choice):
         lst_barplot_speeddistance = []
         for _, row in filter_df.iterrows():
             dist_zone = row["distance_zone"]
-            # Mise en forme de liste de dictionnaire
+            # Mise en forme de liste de dictionnaires
             dic = {"nom": row[choice], "0-5": round(dist_zone[0], 2), "5-10": round(dist_zone[1], 2),
                    "10-15": round(dist_zone[2], 2), "15-20": round(dist_zone[3], 2), "20-25": round(dist_zone[4], 2),
                    "25-30": round(dist_zone[5], 2)}
@@ -35,6 +35,35 @@ def format_for_barplot_speeddistance(filter_df, choice):
         # Trier par ordre décroissant
         lst_barplot_speeddistance = sorted(lst_barplot_speeddistance, key=lambda x: x["0-5"]+x["5-10"]+x["10-15"]+x["15-20"]+x["20-25"]+x["25-30"], reverse=True)
         return lst_barplot_speeddistance
+
+def format_for_scatter_speedaccel(filter_df, choice):
+     #Formater les données
+     lst_scatter_speedaccel = []
+     for i, row in filter_df.iterrows():
+          name = row[choice]
+          max_speed = round(max(row["vitesse"]) * 3.6, 2)
+          max_accel = round(max(row["accel"]), 2)
+          lst_color = ["red.5", "pink.5", "grape.5", "violet.5", "indigo.5", "blue.5", "cyan.5",
+                       "teal.5", "green.5", "lime.5", "yellow.5", "orange.5", "gray.5", "cyan.0"]
+          # Mise en forme de liste de dictionnaires
+          lst_scatter_speedaccel.append({"color": lst_color[i],
+                                         "name": name,
+                                         "data": [{"vitesse": max_speed, "acceleration": max_accel}]})
+     return lst_scatter_speedaccel
+
+def format_for_barplot_accel(filter_df, choice):
+     # Formatter les données
+     lst_barplot_accel = []
+     for i, row in filter_df.iterrows():
+          name = row[choice]
+          nb_accel = row["nb_acceleration"]
+          dic = {"nom": name, "nombre d'accélération":nb_accel}
+          lst_barplot_accel.append(dic)
+          lst_barplot_color = [{"name": "nombre d'accélération", "color": "violet.6"}]
+     # Trier par ordre décroissant
+     lst_barplot_accel = sorted(lst_barplot_accel, key=lambda x: x["nombre d'accélération"], reverse=True)
+     return lst_barplot_accel, lst_barplot_color
+
 
 
 # Mettre à jour les selects en fonction des sélections en cours - GPS
@@ -85,7 +114,7 @@ def update_select(date, match, file):
 def create_barplot_speeddistance(date, match, joueur):
      # Définir style
     lst_color = [{"name": "0-5", "color": "violet.6"}, {"name": "5-10", "color": "blue.6"}, {"name": "10-15", "color": "teal.6"}, 
-                    {"name": "15-20", "color": "green.6"}, {"name": "20-25", "color": "yellow.6"}, {"name": "25-30", "color": "orange.6"}]
+                 {"name": "15-20", "color": "green.6"}, {"name": "20-25", "color": "yellow.6"}, {"name": "25-30", "color": "orange.6"}]
     # Cas si on veut les résultats pour un match
     if (date and match) and not joueur:
         # Filtrer les données en fonction de la valeurs des selects
@@ -104,8 +133,62 @@ def create_barplot_speeddistance(date, match, joueur):
         return lst_data, "nom", lst_color, height_barplot, {"display": "block"}, {"display": "block"}
     else:
          return [], "", [], 0, {"display": "none"}, {"display": "none"}
+    
+
+# Créer le scatterplot vitesse/acceleration
+@callback([Output("scatter_vitesse_accel", "data"),
+           Output("scatter_vitesse_accel", "style"),
+           Output("title_scatterspeedaccel", "style")],
+           [Input("select_date", "value"),
+           Input("select_match", "value"),
+           Input("select_joueur", "value")],
+           prevent_initial_call=True)
+def create_scatter_speedaccel(date, match, joueur):
+    # Cas si on veut les résultats pour un match
+    if (date and match) and not joueur:
+        # Filtrer les données en fonction de la valeurs des selects
+        df_filter = df[(df["date"]== date) & (df["game"]== match)]
+        lst_data = format_for_scatter_speedaccel(df_filter, "player")
+        return lst_data, {"display": "block"}, {"display": "block"}
+     # Cas si on veut les résultats pour un joueur
+    elif joueur:
+        # Filtrer les données en fonction de la valeurs des selects
+        df_filter = df[(df["player"]== joueur)]
+        if date : df_filter = df_filter[(df_filter["date"]== date)]
+        if match : df_filter = df_filter[(df_filter["game"]== match)]
+        lst_data = format_for_scatter_speedaccel(df_filter, "game")
+        return lst_data, {"display": "block"}, {"display": "block"}
+    else:
+         return [], {"display": "none"}, {"display": "none"}
        
 
+# Créer le barplot nombre d'accélération
+@callback([Output("barplot_accel", "data"),
+           Output("barplot_accel", "dataKey"),
+           Output("barplot_accel", "series"),
+           Output("title_nbaccel", "style"),
+           Output("barplot_accel", "style")],
+           [Input("select_date", "value"),
+           Input("select_match", "value"),
+           Input("select_joueur", "value")],
+           prevent_initial_call=True)
+def create_barplot_accel(date, match, joueur):
+    # Cas si on veut les résultats pour un match
+    if (date and match) and not joueur:
+        # Filtrer les données en fonction de la valeurs des selects
+        df_filter = df[(df["date"]== date) & (df["game"]== match)]
+        lst_data, lst_color = format_for_barplot_accel(df_filter, "player")
+        return lst_data, "nom", lst_color, {"display": "block"}, {"display": "block"}
+     # Cas si on veut les résultats pour un joueur
+    elif joueur:
+        # Filtrer les données en fonction de la valeurs des selects
+        df_filter = df[(df["player"]== joueur)]
+        if date : df_filter = df_filter[(df_filter["date"]== date)]
+        if match : df_filter = df_filter[(df_filter["game"]== match)]
+        lst_data, lst_color = format_for_barplot_accel(df_filter, "game")
+        return lst_data, "nom", lst_color, {"display": "block"}, {"display": "block"}
+    else:
+         return [], "nom", [], {"display": "none"}, {"display": "none"}
 
 
 
