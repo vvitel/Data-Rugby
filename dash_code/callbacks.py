@@ -6,12 +6,17 @@ from send_to_database.functions.connect_database import connect_mongodb
 from dash_code.functions.dash_functions import filter_dataframe
 
 # Connection à la base de données
-clt, collection = connect_mongodb()
+clt, collection_gps, collection_video = connect_mongodb()
 
-# Récupérer tous les documents en dataframe
-documents = collection.find({})
-documents = list(documents)
-df = pd.DataFrame(documents)
+# Récupérer tous les documents gps en dataframe
+documents_gps = collection_gps.find({})
+documents_gps = list(documents_gps)
+df = pd.DataFrame(documents_gps)
+
+# Récupérer tous les documents video en dataframe
+documents_video = collection_video.find({})
+documents_video = list(documents_video)
+df_video = pd.DataFrame(documents_video)
 
 # Récupérer les informations pour les noms, dates, matchs
 date_dic = [{"value": i, "label": i} for i in pd.unique(df["date"])]
@@ -118,16 +123,16 @@ def create_barplot_speeddistance(date, match, joueur):
     # Cas si on veut les résultats pour un match
     if (date and match) and not joueur:
         # Filtrer les données en fonction de la valeurs des selects
-        df_filter = df[(df["date"]== date) & (df["game"]== match)]
+        df_filter = df[(df["date"] == date) & (df["game"] == match)]
         lst_data = format_for_barplot_speeddistance(df_filter, "player")
         height_barplot = 400 if 40 * len(lst_data) < 400 else 40 * len(lst_data)
         return lst_data, "nom", lst_color, height_barplot, {"display": "block"}, {"display": "block"}
     # Cas si on veut les résultats pour un joueur
     elif joueur:
         # Filtrer les données en fonction de la valeurs des selects
-        df_filter = df[(df["player"]== joueur)]
-        if date : df_filter = df_filter[(df_filter["date"]== date)]
-        if match : df_filter = df_filter[(df_filter["game"]== match)]
+        df_filter = df[(df["player"] == joueur)]
+        if date : df_filter = df_filter[(df_filter["date"] == date)]
+        if match : df_filter = df_filter[(df_filter["game"] == match)]
         lst_data = format_for_barplot_speeddistance(df_filter, "game")
         height_barplot = 400 if 40 * len(lst_data) < 400 else 40 * len(lst_data)
         return lst_data, "nom", lst_color, height_barplot, {"display": "block"}, {"display": "block"}
@@ -147,15 +152,15 @@ def create_scatter_speedaccel(date, match, joueur):
     # Cas si on veut les résultats pour un match
     if (date and match) and not joueur:
         # Filtrer les données en fonction de la valeurs des selects
-        df_filter = df[(df["date"]== date) & (df["game"]== match)]
+        df_filter = df[(df["date"] == date) & (df["game"] == match)]
         lst_data = format_for_scatter_speedaccel(df_filter, "player")
         return lst_data, {"display": "block"}, {"display": "block"}
      # Cas si on veut les résultats pour un joueur
     elif joueur:
         # Filtrer les données en fonction de la valeurs des selects
-        df_filter = df[(df["player"]== joueur)]
-        if date : df_filter = df_filter[(df_filter["date"]== date)]
-        if match : df_filter = df_filter[(df_filter["game"]== match)]
+        df_filter = df[(df["player"] == joueur)]
+        if date : df_filter = df_filter[(df_filter["date"] == date)]
+        if match : df_filter = df_filter[(df_filter["game"] == match)]
         lst_data = format_for_scatter_speedaccel(df_filter, "game")
         return lst_data, {"display": "block"}, {"display": "block"}
     else:
@@ -176,20 +181,56 @@ def create_barplot_accel(date, match, joueur):
     # Cas si on veut les résultats pour un match
     if (date and match) and not joueur:
         # Filtrer les données en fonction de la valeurs des selects
-        df_filter = df[(df["date"]== date) & (df["game"]== match)]
+        df_filter = df[(df["date"] == date) & (df["game"] == match)]
         lst_data, lst_color = format_for_barplot_accel(df_filter, "player")
         return lst_data, "nom", lst_color, {"display": "block"}, {"display": "block"}
      # Cas si on veut les résultats pour un joueur
     elif joueur:
         # Filtrer les données en fonction de la valeurs des selects
-        df_filter = df[(df["player"]== joueur)]
-        if date : df_filter = df_filter[(df_filter["date"]== date)]
-        if match : df_filter = df_filter[(df_filter["game"]== match)]
+        df_filter = df[(df["player"] == joueur)]
+        if date : df_filter = df_filter[(df_filter["date"] == date)]
+        if match : df_filter = df_filter[(df_filter["game"] == match)]
         lst_data, lst_color = format_for_barplot_accel(df_filter, "game")
         return lst_data, "nom", lst_color, {"display": "block"}, {"display": "block"}
     else:
          return [], "nom", [], {"display": "none"}, {"display": "none"}
 
+# Afficher la vidéo
+@callback([Output("yt_video", "url"),
+           Output("yt_video", "style")],
+           [Input("select_date_video", "value"),
+           Input("select_match_video", "value"),
+           Input("select_joueur_video", "value"),
+           Input("select_metrique_video", "value")],
+           prevent_initial_call=True)
+def show_video(date, match, joueur, metric):
+     # Cas si on veut voir toute la vidéo
+     if (date and match) and not joueur and not metric:
+        # Filtrer les données en fonction de la valeurs des selects
+        id_vid = df_video["lien"][(df_video["date"] == date) & (df_video["game"] == match)].iloc[0]
+        url = f"https://www.youtube.com/watch?v={id_vid}"
+        return url, {"display": "block"}
+     if date and match and joueur and metric:
+        id_vid = df_video["lien"][(df_video["date"] == date) & (df_video["game"] == match)].iloc[0]
+        kickoff = df_video["kickoff"][(df_video["date"] == date) & (df_video["game"] == match)].iloc[0]
+        url = f"https://www.youtube.com/watch?v={id_vid}"
+        # Filtrer les données en fonction de la valeurs des selects
+        df_filter = df[(df["date"] == date) & (df["game"] == match) & (df["player"] == joueur)]
+        # Trouver temps correspondant à la valeur maximale
+        tps_max = df_filter[f"{metric}_temps"].iloc[0][0]
+        # Convertir le temps - on ajoute 4 heures
+        tps_max_convert = (tps_max + 14400) - float(kickoff)
+        tps_max_convert = round(tps_max_convert)
+        # Préciser le temps dans l'url
+        url = f"{url}&t={tps_max_convert}s"
+        return url, {"display": "block"}
+     else:
+         return "", {"display": "none"}
+
+
+#https://www.youtube.com/watch?v=pq-UZpjlRSI&t=10s
+
+     
 
 
 

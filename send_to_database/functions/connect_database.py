@@ -5,5 +5,6 @@ def connect_mongodb():
     client = MongoClient(uri)
     client.admin.command("ping")
     db = client["GPS_database"]
-    collec = db["gps"]
-    return client, collec
+    collec_gps = db["gps"]
+    collec_video = db["video"]
+    return client, collec_gps, collec_video

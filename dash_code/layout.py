@@ -1,4 +1,5 @@
 import dash_mantine_components as dmc
+import dash_player
 from dash import html
 
 def create_layout(dic_date, dic_match, dic_joueur):
@@ -78,7 +79,7 @@ def create_layout(dic_date, dic_match, dic_joueur):
                                             dmc.Select(label="Joueur", id="select_joueur_video", data=dic_joueur, searchable=True, clearable=True, w="100%"),
                                             html.Br(),
                                             dmc.Badge("Choisir métrique", size="lg", radius="lg", color="grape"),
-                                            dmc.Select(label="Métrique", id="select_metrique_video", data=[{"value": "vitesse max.", "label": "vitesse max."}], searchable=True, clearable=True, w="100%"),
+                                            dmc.Select(label="Métrique", id="select_metrique_video", data=[{"value": "vitesse", "label": "vitesse max."}, {"value": "accel", "label": "acceleration max."}], searchable=True, clearable=True, w="100%"),
                                         ],
                                         span=2
                                     ),
@@ -86,7 +87,7 @@ def create_layout(dic_date, dic_match, dic_joueur):
                                     dmc.GridCol(
                                         children=[
                                             dmc.Center(dmc.Title("Visualisation des vidéos", order=1, mt="lg")),
-                                            dmc.Center(html.Div([html.Video(id="html_video", src="", controls=True, width=960 , height=540, style={"display": "none"})]))
+                                            dmc.Center(html.Div([dash_player.DashPlayer(id="yt_video", url="", controls=True, width="100%", height="250px", seekTo=0, style={"display": "none"})]))
                                         ],
                                         span=10
                                     )

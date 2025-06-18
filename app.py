@@ -6,10 +6,10 @@ from dash_code.callbacks import *
 from pymongo import MongoClient
 
 # Connection à la base de données
-clt, collection = connect_mongodb()
+clt, collection_gps, collection_video = connect_mongodb()
 
 # Récupérer tous les documents en dataframe
-documents = collection.find({})
+documents = collection_gps.find({})
 documents = list(documents)
 df = pd.DataFrame(documents)
 

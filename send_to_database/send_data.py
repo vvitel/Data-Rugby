@@ -9,14 +9,14 @@ from tqdm import tqdm
 ap = argparse.ArgumentParser()
 ap.add_argument("-game", "--game", required=True, type=str)
 ap.add_argument("-competition", "--competition", required=True, type=str)
-ap.add_argument("-coord_field", "--coord_field", required=True, type=str)
+ap.add_argument("-coord_field", "--coord_field", required=False, type=str)
 ap.add_argument("-commentaire", "--commentaire", required=False, type=str)
 args = ap.parse_args()
 game, competition, coord_field = args.game, args.competition, args.coord_field
 commentaire = args.commentaire
 
 # Connection à la base de données
-clt, collection = connect_mongodb()
+clt, collection_gps, collection_video = connect_mongodb()
 
 # Récupérer les données
 files = os.listdir("../temp")
@@ -41,7 +41,7 @@ for f in tqdm(files):
                 "nb_acceleration": nb_accel}
     
     # Enregistrer dans la base de données
-    collection.insert_one(document)
+    collection_gps.insert_one(document)
 
 # Afficher fin de l'ajout
 print("Données ajoutées dans la base de données")
