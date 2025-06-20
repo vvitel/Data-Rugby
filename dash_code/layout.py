@@ -87,7 +87,8 @@ def create_layout(dic_date, dic_match, dic_joueur):
                                     dmc.GridCol(
                                         children=[
                                             dmc.Center(dmc.Title("Visualisation des vidéos", order=1, mt="lg")),
-                                            dmc.Center(html.Div([dash_player.DashPlayer(id="yt_video", url="", controls=True, width="100%", height="250px", seekTo=0, style={"display": "none"})]))
+                                            html.Br(),
+                                            dmc.Center(html.Div([dash_player.DashPlayer(id="yt_video", url="", controls=True, seekTo=0, style={"display": "none", "width": "100%", "height": "300px"})]))
                                         ],
                                         span=10
                                     )
