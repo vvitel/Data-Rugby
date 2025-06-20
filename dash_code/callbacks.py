@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import yt_dlp
 from dash import callback, Output, Input
 from dash_code.layout import create_layout
 from send_to_database.functions.connect_database import connect_mongodb
@@ -213,9 +212,7 @@ def create_slider(date, match, joueur, metric, action):
         id_vid = df_video["lien"][(df_video["date"] == date) & (df_video["game"] == match)].iloc[0]
         url = f"https://www.youtube.com/watch?v={id_vid}"
         # Récupérer la durée de la vidéo
-        ydl = yt_dlp.YoutubeDL()
-        info = ydl.extract_info(url, download=False)
-        duration_vidéo = info.get("duration")
+        duration_vidéo = df_video["temps"][(df_video["date"] == date) & (df_video["game"] == match)].iloc[0]
         # Filtrer les données en fonction de la valeurs des selects
         df_filter = df_video[(df["date"] == date) & (df["game"] == match)]
         # Occurences de l'action sélectionnée
