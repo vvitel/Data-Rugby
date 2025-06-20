@@ -80,6 +80,10 @@ def create_layout(dic_date, dic_match, dic_joueur):
                                             html.Br(),
                                             dmc.Badge("Choisir métrique", size="lg", radius="lg", color="grape"),
                                             dmc.Select(label="Métrique", id="select_metrique_video", data=[{"value": "vitesse", "label": "vitesse max."}, {"value": "accel", "label": "acceleration max."}], searchable=True, clearable=True, w="100%"),
+                                            html.Br(),
+                                            dmc.Badge("Choisir action", size="lg", radius="lg", color="pink"),
+                                            dmc.Select(label="Action", id="select_action_video", data=[{"value": "essai", "label": "essai"}, {"value": "mêlée", "label": "mêlée"}, {"value": "touche", "label": "touche"}], searchable=True, clearable=True, w="100%"),
+
                                         ],
                                         span=2
                                     ),
@@ -88,7 +92,9 @@ def create_layout(dic_date, dic_match, dic_joueur):
                                         children=[
                                             dmc.Center(dmc.Title("Visualisation des vidéos", order=1, mt="lg")),
                                             html.Br(),
-                                            dmc.Center(html.Div([dash_player.DashPlayer(id="yt_video", url="", controls=True, seekTo=0, style={"display": "none", "width": "100%", "height": "300px"})]))
+                                            dmc.Center(html.Div([dash_player.DashPlayer(id="yt_video", url="", controls=True, seekTo=0, style={"display": "none", "width": "100%", "height": "300px"})])),
+                                            html.Br(),
+                                            dmc.Slider(id="slider_action", restrictToMarks=True, value=0, marks=[{"value": 0}], style={"display": "none"})
                                         ],
                                         span=10
                                     )

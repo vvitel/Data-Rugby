@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import yt_dlp
 from dash import callback, Output, Input
 from dash_code.layout import create_layout
 from send_to_database.functions.connect_database import connect_mongodb
@@ -227,10 +228,65 @@ def show_video(date, match, joueur, metric):
      else:
          return "", {"display": "none"}
 
+# Créer slider pour sélectionner les événements
+@callback([Output("slider_action", "value"),
+           Output("slider_action", "marks"), 
+           Output("slider_action", "style")],
+           [Input("select_date_video", "value"),
+           Input("select_match_video", "value"),
+           Input("select_joueur_video", "value"),
+           Input("select_metrique_video", "value"),
+           Input("select_action_video", "value")],
+           prevent_initial_call=True)
+def create_slider(date, match, joueur, metric, action):
+    if (date and match) and not joueur and not metric:
+        # Filtrer les données en fonction de la valeurs des selects
+        kickoff = df_video["kickoff"][(df_video["date"] == date) & (df_video["game"] == match)].iloc[0]
+        id_vid = df_video["lien"][(df_video["date"] == date) & (df_video["game"] == match)].iloc[0]
+        url = f"https://www.youtube.com/watch?v={id_vid}"
+        # Récupérer la durée de la vidéo
+        ydl = yt_dlp.YoutubeDL()
+        info = ydl.extract_info(url, download=False)
+        duration_vidéo = info.get("duration")
+        # Filtrer les données en fonction de la valeurs des selects
+        df_filter = df_video[(df["date"] == date) & (df["game"] == match)]
+        # Occurences de l'action sélectionnée
+        event = np.array(df_filter[action].iloc[0]).astype(float)
+        # Convertir le temps - on ajoute 4 heures
+        event_time = event - float(kickoff)
+        event_percent = event_time * 100 / duration_vidéo
+        # Créer les marques sur le slider
+        marks = [{"value": round(percent), "label": round(label - 15)} for label, percent in zip(event_time, event_percent)]
+        print(marks)
+        value = marks[0]["value"]
+        return value, marks, {"display": "block"}
+    else:
+        return 0, [{"value": 0}], {"display": "none"}
 
-#https://www.youtube.com/watch?v=pq-UZpjlRSI&t=10s
+# Mettre à jours la vidéo en fonction du Slider
+@callback(Output("yt_video", "url", allow_duplicate=True),
+           [Input("select_date_video", "value"),
+           Input("select_match_video", "value"),
+           Input("select_joueur_video", "value"),
+           Input("select_metrique_video", "value"),
+           Input("select_action_video", "value"),
+           Input("slider_action", "value"),
+           Input("slider_action", "marks")],
+           prevent_initial_call=True)
+def update_video(date, match, joueur, metric, action, value, marks):
+     if (date and match and action) and not joueur and not metric:
+         id_vid = df_video["lien"][(df_video["date"] == date) & (df_video["game"] == match)].iloc[0]
+         url = f"https://www.youtube.com/watch?v={id_vid}"
+         tps_sec = next(item["label"] for item in marks if item["value"] == value)
+         # Préciser le temps dans l'url
+         url = f"{url}&t={tps_sec}s"
+         return url
+     else:
+         return ""
 
-     
+         
+
+
 
 
 
