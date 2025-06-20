@@ -3,7 +3,6 @@ from send_to_database.functions.connect_database import connect_mongodb
 from dash import Dash
 from dash_code.layout import create_layout
 from dash_code.callbacks import *
-from pymongo import MongoClient
 
 # Connection à la base de données
 clt, collection_gps, collection_video = connect_mongodb()

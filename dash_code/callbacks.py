@@ -209,8 +209,6 @@ def create_slider(date, match, joueur, metric, action):
     if (date and match and action) and not joueur and not metric:
         # Filtrer les données en fonction de la valeurs des selects
         kickoff = df_video["kickoff"][(df_video["date"] == date) & (df_video["game"] == match)].iloc[0]
-        id_vid = df_video["lien"][(df_video["date"] == date) & (df_video["game"] == match)].iloc[0]
-        url = f"https://www.youtube.com/watch?v={id_vid}"
         # Récupérer la durée de la vidéo
         duration_vidéo = df_video["temps"][(df_video["date"] == date) & (df_video["game"] == match)].iloc[0]
         # Filtrer les données en fonction de la valeurs des selects
@@ -240,12 +238,12 @@ def create_slider(date, match, joueur, metric, action):
            prevent_initial_call=True)
 def show_video(date, match, joueur, metric, action, value, marks):
      # Cas si on veut voir toute la vidéo
-     if (date and match) and not joueur and not metric:
+     if (date and match) and not action and not joueur and not metric:
         # Filtrer les données en fonction de la valeurs des selects
         id_vid = df_video["lien"][(df_video["date"] == date) & (df_video["game"] == match)].iloc[0]
         url = f"https://www.youtube.com/watch?v={id_vid}"
         return url, {"display": "block"}
-     if date and match and joueur and metric:
+     if date and match and joueur and metric and not action:
         id_vid = df_video["lien"][(df_video["date"] == date) & (df_video["game"] == match)].iloc[0]
         kickoff = df_video["kickoff"][(df_video["date"] == date) & (df_video["game"] == match)].iloc[0]
         url = f"https://www.youtube.com/watch?v={id_vid}"
@@ -261,7 +259,6 @@ def show_video(date, match, joueur, metric, action, value, marks):
         return url, {"display": "block"}
      # Afficher la vidéo avec possibilité de sélectionner les actions
      if (date and match and action) and not joueur and not metric:
-        print("aaaaaaaaaaaaaaaaaaaaaaaa")
         id_vid = df_video["lien"][(df_video["date"] == date) & (df_video["game"] == match)].iloc[0]
         url = f"https://www.youtube.com/watch?v={id_vid}"
         tps_sec = next(item["label"] for item in marks if item["value"] == value)
