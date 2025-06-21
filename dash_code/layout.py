@@ -92,7 +92,7 @@ def create_layout(dic_date, dic_match, dic_joueur):
                                         children=[
                                             dmc.Center(dmc.Title("Visualisation des vidéos", order=1, mt="lg")),
                                             html.Br(),
-                                            dmc.Center(html.Div([dash_player.DashPlayer(id="yt_video", url="", controls=True, seekTo=0, style={"display": "none", "width": "100%", "height": "300px"})])),
+                                            dmc.Center(html.Div([dash_player.DashPlayer(id="yt_video", url="", controls=True, playing=True, seekTo=0, style={"display": "none", "width": "100%", "height": "300px"})])),
                                             html.Br(),
                                             dmc.Slider(id="slider_action", restrictToMarks=True, value=0, marks=[{"value": 0}], style={"display": "none"})
                                         ],

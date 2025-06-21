@@ -1,0 +1,7 @@
+.mantine-Slider-markLabel {
+    transform: rotate(45deg);
+    display: inline-block;
+    position: absolute;
+    transform-origin: left;
+    white-space: nowrap;
+}
