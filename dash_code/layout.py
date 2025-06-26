@@ -54,7 +54,7 @@ def create_layout(dic_date, dic_match, dic_joueur):
                                             html.Br(),
                                             dmc.Group(children=[dmc.DonutChart(id="donut_vmax", data=[], startAngle=180, endAngle=0, chartLabel="vitesse max.", style={"display": "none"}),
                                                                 dmc.DonutChart(id="donut_amax", data=[], startAngle=180, endAngle=0, chartLabel="accélération max.", style={"display": "none"}),],
-                                                      grow=False)],
+                                                      grow=False, gap="xl")],
                                         span=10
                                     ),
                                 ]

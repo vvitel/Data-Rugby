@@ -195,6 +195,33 @@ def create_barplot_accel(date, match, joueur):
     else:
          return [], "nom", [], {"display": "none"}, {"display": "none"}
     
+# Créer donutchart pour comparaison avec le niveau international
+@callback([Output("donut_vmax", "data"),
+           Output("donut_vmax", "style"),
+           Output("donut_amax", "data"),
+           Output("donut_amax", "style"),
+           Output("title_donut", "style")],
+           Input("select_joueur", "value"),
+           prevent_initial_call=True)
+def create_donutchart(joueur):
+    if joueur:
+        # Filtrer les données en fonction de la valeurs des selects
+        df_filter = df[(df["player"] == joueur)]
+        measured_vmax = max([i[0] for i in df_filter["vitesse"]])
+        measured_amax = max([i[0] for i in df_filter["accel"]])
+        # Calculer une note sur 100
+        note_100_vmax = round(measured_vmax * 100 / 9.53, 1)
+        note_100_amax = round(measured_amax * 100 / 5.70, 1)
+        remainder_100_vmax = round(100 - note_100_vmax, 1)
+        remainder_100_amax = round(100 - note_100_amax, 1)
+        # Éléments à retourner
+        data_donut_vmax = [{"name": "vmax mesurée", "value": note_100_vmax, "color": "indigo.4"}, {"name": "vmax théorique", "value": remainder_100_vmax, "color": "gray.4"}]
+        data_donut_amax = [{"name": "vmax mesurée", "value": note_100_amax, "color": "indigo.4"}, {"name": "vmax théorique", "value": remainder_100_amax, "color": "gray.4"}]
+        return data_donut_vmax, {"display": "block"}, data_donut_amax, {"display": "block"}, {"display": "block"}
+    else:
+        return [], {"display": "none"}, [], {"display": "none"}, {"display": "none"}
+
+
 # Créer slider pour sélectionner les événements
 @callback([Output("slider_action", "value"),
            Output("slider_action", "marks"), 
@@ -267,11 +294,5 @@ def show_video(date, match, joueur, metric, action, value, marks):
         return url, {"display": "block"}
      else:
          return "", {"display": "none"}
+     
          
-
-
-
-
-
-
-
