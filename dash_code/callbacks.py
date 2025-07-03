@@ -44,6 +44,7 @@ def format_for_barplot_speeddistance(filter_df, choice):
 def format_for_scatter_speedaccel(filter_df, choice):
      #Formater les données
      lst_scatter_speedaccel = []
+     filter_df.reset_index(drop=True, inplace=True)
      for i, row in filter_df.iterrows():
           name = row[choice]
           max_speed = round(max(row["vitesse"]) * 3.6, 2)
@@ -207,6 +208,7 @@ def create_donutchart(joueur):
     if joueur:
         # Filtrer les données en fonction de la valeurs des selects
         df_filter = df[(df["player"] == joueur)]
+        df_filter.reset_index(drop=True, inplace=True)
         measured_vmax = max([i[0] for i in df_filter["vitesse"]])
         measured_amax = max([i[0] for i in df_filter["accel"]])
         # Calculer une note sur 100
@@ -239,7 +241,8 @@ def create_slider(date, match, joueur, metric, action):
         # Récupérer la durée de la vidéo
         duration_vidéo = df_video["temps"][(df_video["date"] == date) & (df_video["game"] == match)].iloc[0]
         # Filtrer les données en fonction de la valeurs des selects
-        df_filter = df_video[(df["date"] == date) & (df["game"] == match)]
+        df_filter = df_video[(df_video["date"] == date) & (df_video["game"] == match)]
+        df_filter.reset_index(drop=True, inplace=True)
         # Occurences de l'action sélectionnée
         event = np.array(df_filter[action].iloc[0]).astype(float)
         # Convertir le temps - on ajoute 4 heures
@@ -270,6 +273,7 @@ def show_video(date, match, joueur, metric, action, value, marks):
         id_vid = df_video["lien"][(df_video["date"] == date) & (df_video["game"] == match)].iloc[0]
         url = f"https://www.youtube.com/watch?v={id_vid}"
         return url, {"display": "block"}
+     # Cas ou on souhaite voir vidéo métrique max
      if date and match and joueur and metric and not action:
         id_vid = df_video["lien"][(df_video["date"] == date) & (df_video["game"] == match)].iloc[0]
         kickoff = df_video["kickoff"][(df_video["date"] == date) & (df_video["game"] == match)].iloc[0]

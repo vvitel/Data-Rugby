@@ -75,8 +75,8 @@ def clean_outliers(speed, accel, time):
     speed = medfilt(speed, kernel_size=9)
     accel = medfilt(accel, kernel_size=9)
     # Valeurs théoriques
-    x1, y1 = 8.547 + 3 * 0.51, 0 #vitesse
-    x2, y2 = 0, 5.629 + 3 * 0.26 #accélération
+    x1, y1 = 8.33, 0 #vitesse - valeur article 8.547 + 3 * 0.51, 0
+    x2, y2 = 0, 4.5 #accélération - 0, 5.629 + 3 * 0.26
     # Calculer équation droite vitesse accélération
     a = (y2 - y1) / (x2 - x1)
     b = y1 - a * x1

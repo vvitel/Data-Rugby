@@ -45,7 +45,7 @@ def create_layout(dic_date, dic_match, dic_joueur):
                                             dmc.Group(children=[dmc.Title("Vitesse et accélération maximale", id="title_scatterspeedaccel", order=3, mt="lg", style={"display": "none"}),
                                                                 dmc.Title("Nombre d'accélération", id="title_nbaccel", order=3, mt="lg", style={"display": "none"})],
                                                       grow=True, gap="xl", justify="space-around"),
-                                            dmc.Group(children=[dmc.ScatterChart(id="scatter_vitesse_accel", h=300, data=[], dataKey={"x": "vitesse", "y": "acceleration"}, xAxisLabel="Vitesse (km/h)", yAxisLabel="Accélération (m/s)", xAxisProps={"domain": [17, 30]}, yAxisProps={"domain": [2, 7]}, withLegend=True, legendProps={"verticalAlign": "bottom", "height": 10}, style={"display": "none"}),
+                                            dmc.Group(children=[dmc.ScatterChart(id="scatter_vitesse_accel", h=300, data=[], dataKey={"x": "vitesse", "y": "acceleration"}, xAxisLabel="Vitesse (km/h)", yAxisLabel="Accélération (m/s)", xAxisProps={"domain": [20, 35]}, yAxisProps={"domain": [2, 7]}, withLegend=True, legendProps={"verticalAlign": "bottom", "height": 10}, style={"display": "none"}),
                                                                 dmc.BarChart(id="barplot_accel", h=400, dataKey="", data=[], type="stacked", orientation="vertical", series=[], withBarValueLabel=True, style={"display": "none"})],
                                                       grow=True),
                                             html.Br(),
@@ -82,7 +82,7 @@ def create_layout(dic_date, dic_match, dic_joueur):
                                             dmc.Select(label="Métrique", id="select_metrique_video", data=[{"value": "vitesse", "label": "vitesse max."}, {"value": "accel", "label": "acceleration max."}], searchable=True, clearable=True, w="100%"),
                                             html.Br(),
                                             dmc.Badge("Choisir action", size="lg", radius="lg", color="pink"),
-                                            dmc.Select(label="Action", id="select_action_video", data=[{"value": "essai", "label": "essai"}, {"value": "mêlée", "label": "mêlée"}, {"value": "touche", "label": "touche"}], searchable=True, clearable=True, w="100%"),
+                                            dmc.Select(label="Action", id="select_action_video", data=[{"value": "essai", "label": "essai"}, {"value": "mêlée", "label": "mêlée"}, {"value": "touche", "label": "touche"}, {"value": "engagement", "label": "engagement"}], searchable=True, clearable=True, w="100%"),
 
                                         ],
                                         span=2
