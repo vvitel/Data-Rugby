@@ -47,8 +47,8 @@ def format_for_scatter_speedaccel(filter_df, choice):
      filter_df.reset_index(drop=True, inplace=True)
      for i, row in filter_df.iterrows():
           name = row[choice]
-          max_speed = round(max(row["vitesse"]) * 3.6, 2)
-          max_accel = round(max(row["accel"]), 2)
+          max_speed = round(row["vitesse"][0] * 3.6, 2)
+          max_accel = round(row["accel"][0], 2)
           lst_color = ["red.5", "pink.5", "grape.5", "violet.5", "indigo.5", "blue.5", "cyan.5",
                        "teal.5", "green.5", "lime.5", "yellow.5", "orange.5", "gray.5", "cyan.0"]
           # Mise en forme de liste de dictionnaires
