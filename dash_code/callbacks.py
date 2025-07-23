@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from dash import callback, Output, Input
+from dash import callback, dcc, Output, Input
 from dash_code.layout import create_layout
 from send_to_database.functions.connect_database import connect_mongodb
 from dash_code.functions.dash_functions import filter_dataframe
@@ -70,8 +70,6 @@ def format_for_barplot_accel(filter_df, choice):
      lst_barplot_accel = sorted(lst_barplot_accel, key=lambda x: x["nombre d'accélération"], reverse=True)
      return lst_barplot_accel, lst_barplot_color
 
-
-
 # Mettre à jour les selects en fonction des sélections en cours - GPS
 @callback(
     [Output("select_date", "data"),
@@ -139,7 +137,6 @@ def create_barplot_speeddistance(date, match, joueur):
         return lst_data, "nom", lst_color, height_barplot, {"display": "block"}, {"display": "block"}
     else:
          return [], "", [], 0, {"display": "none"}, {"display": "none"}
-    
 
 # Créer le scatterplot vitesse/acceleration
 @callback([Output("scatter_vitesse_accel", "data"),
@@ -166,7 +163,6 @@ def create_scatter_speedaccel(date, match, joueur):
         return lst_data, {"display": "block"}, {"display": "block"}
     else:
          return [], {"display": "none"}, {"display": "none"}
-       
 
 # Créer le barplot nombre d'accélération
 @callback([Output("barplot_accel", "data"),
@@ -223,6 +219,30 @@ def create_donutchart(joueur):
     else:
         return [], {"display": "none"}, [], {"display": "none"}, {"display": "none"}
 
+# Télécharger les données
+@callback([Output("download_data", "data"),
+           Output("btn_download_data", "n_clicks")],
+          [Input("select_date", "value"),
+           Input("select_match", "value"),
+           Input("select_joueur", "value"),
+           Input("btn_download_data", "n_clicks")],
+           prevent_initial_call=True)
+def download_data(date, match, joueur, n_clicks):
+    # Cas si on veut les résultats pour un match
+    if (date and match) and not joueur:
+        # Filtrer les données en fonction de la valeurs des selects
+        df_filter = df[(df["date"] == date) & (df["game"] == match)]
+    # Cas si on veut les résultats pour un joueur
+    elif joueur:
+        # Filtrer les données en fonction de la valeurs des selects
+        df_filter = df[(df["player"] == joueur)]
+        if date : df_filter = df_filter[(df_filter["date"] == date)]
+        if match : df_filter = df_filter[(df_filter["game"] == match)]
+    # Télécharger si on clique sur le bouton
+    if (n_clicks) and ("df_filter" in locals()):
+        return dcc.send_data_frame(df_filter.to_csv, filename="data_RQ.csv", index=False), 0
+    else:
+        return None, 0
 
 # Créer slider pour sélectionner les événements
 @callback([Output("slider_action", "value"),

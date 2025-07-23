@@ -1,6 +1,6 @@
 import dash_mantine_components as dmc
 import dash_player
-from dash import html
+from dash import html, dcc
 
 def create_layout(dic_date, dic_match, dic_joueur):
     return dmc.MantineProvider(
@@ -30,7 +30,10 @@ def create_layout(dic_date, dic_match, dic_joueur):
                                             dmc.Select(label="Match", id="select_match", data=dic_match, searchable=True, clearable=True, w="100%"),
                                             html.Br(),
                                             dmc.Badge("Choisir joueur", size="lg", radius="lg", color="violet"),
-                                            dmc.Select(label="Joueur", id="select_joueur", data=dic_joueur, searchable=True, clearable=True, w="100%")
+                                            dmc.Select(label="Joueur", id="select_joueur", data=dic_joueur, searchable=True, clearable=True, w="100%"),
+                                            html.Br(),
+                                            dmc.Button("Télécharger les données", id="btn_download_data", size="compact-lg", w="100%", color="indigo"),
+                                            dcc.Download(id="download_data")
                                         ],
                                         span=2
                                     ),
