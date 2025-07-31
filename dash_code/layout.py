@@ -143,4 +143,3 @@ def create_layout(dic_date, dic_match, dic_joueur):
             )
         ]
     )
-
