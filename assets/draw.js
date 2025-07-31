@@ -42,17 +42,25 @@ window.trigger = () => {
     ctx.stroke();
   }
 
+  function clearCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "r" || e.key === "R") {
+      clearCanvas();
+    }
+  });
+
   window.addEventListener("resize", resize);
   canvas.addEventListener("mousedown", startDrawing);
   canvas.addEventListener("mouseup", stopDrawing);
   canvas.addEventListener("mouseout", stopDrawing);
   canvas.addEventListener("mousemove", draw);
 
-  resize(); // Redimensionne une première fois après chargement
+  resize();
 };
 
-// Exécuter le code après le chargement complet de la page
 window.onload = () => {
   window.trigger();
 };
-
