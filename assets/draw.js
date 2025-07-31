@@ -55,3 +55,4 @@ window.trigger = () => {
 window.onload = () => {
   window.trigger();
 };
+
