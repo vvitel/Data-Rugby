@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from dash import callback, dcc, Output, Input
+from dash import callback, clientside_callback, dcc, Output, Input
 from dash_code.layout import create_layout
 from send_to_database.functions.connect_database import connect_mongodb
 from dash_code.functions.dash_functions import filter_dataframe
@@ -319,4 +319,19 @@ def show_video(date, match, joueur, metric, action, value, marks):
      else:
          return "", {"display": "none"}
      
-         
+# Déclencher le script JS pour dessiner sur la vidéo
+clientside_callback(
+    """
+    function(date, match) {
+        if (date && match) {
+            setTimeout(function() {
+                window.trigger();
+            }, 500);
+        }
+        return "";
+    }
+    """,
+    Output("store_inutile", "data"),
+    Input("select_date_video", "value"),
+    Input("select_match_video", "value")
+)
