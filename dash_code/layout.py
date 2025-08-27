@@ -102,7 +102,8 @@ def create_layout(dic_date, dic_match, dic_joueur):
                                                 style={"position": "relative"})),
                                             dcc.Store(id="store_inutile"),
                                             html.Br(),
-                                            dmc.Slider(id="slider_action", restrictToMarks=True, value=0, marks=[{"value": 0}], style={"display": "none"})
+                                            dmc.Slider(id="slider_action", restrictToMarks=True, value=0, marks=[{"value": 0}], style={"display": "none"}, styles={"markLabel": {"display": "none"}})
+                                            #{"markLabel": {"display": "none"}
                                         ],
                                         span=10
                                     )
