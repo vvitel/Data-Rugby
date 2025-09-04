@@ -14,7 +14,7 @@ date, game, competition = args.date, args.game, args.competition
 lien, commentaire = args.lien, args.commentaire
 
 # Connection à la base de données
-clt, collection_gps, collection_video = connect_mongodb()
+clt, _, collection_video, _ = connect_mongodb()
 
 # Récupérer la durée de la vidéo
 ydl = yt_dlp.YoutubeDL()

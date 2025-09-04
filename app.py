@@ -5,7 +5,7 @@ from dash_code.layout import create_layout
 from dash_code.callbacks import *
 
 # Connection à la base de données
-clt, collection_gps, collection_video = connect_mongodb()
+clt, collection_gps, _,  _ = connect_mongodb()
 
 # Récupérer tous les documents en dataframe
 documents = collection_gps.find({})

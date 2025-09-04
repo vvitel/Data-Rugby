@@ -7,4 +7,5 @@ def connect_mongodb():
     db = client["GPS_database"]
     collec_gps = db["gps"]
     collec_video = db["video"]
-    return client, collec_gps, collec_video
+    collec_annotation = db["annotation"]
+    return client, collec_gps, collec_video, collec_annotation

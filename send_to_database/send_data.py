@@ -19,7 +19,7 @@ start, end = args.start, args.end
 commentaire = args.commentaire
 
 # Connection à la base de données
-clt, collection_gps, collection_video = connect_mongodb()
+clt, collection_gps, _, _ = connect_mongodb()
 
 # Récupérer les données
 files = os.listdir("../temp")
