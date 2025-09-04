@@ -45,12 +45,20 @@ def create_layout(dic_date, dic_match, dic_joueur):
                                             dmc.Title("Distances parcourues par zone de vitesse", id="title_barplot", order=3, mt="lg", style={"display": "none"}),
                                             dmc.BarChart(id="barplot_dist", h=0, dataKey="", data=[], type="stacked", orientation="vertical", series=[], style={"display": "none"}),
                                             html.Br(),
+                                            # Titres et graphiques vmax et nombre d'accélérations
                                             dmc.Group(children=[dmc.Title("Vitesse et accélération maximale", id="title_scatterspeedaccel", order=3, mt="lg", style={"display": "none"}),
-                                                                dmc.Title("Nombre d'accélération", id="title_nbaccel", order=3, mt="lg", style={"display": "none"})],
+                                                                dmc.Title("Nombre de sprints", id="title_nbaccel", order=3, mt="lg", style={"display": "none"})],
                                                       grow=True, gap="xl", justify="space-around"),
                                             dmc.Group(children=[dmc.ScatterChart(id="scatter_vitesse_accel", h=300, data=[], dataKey={"x": "vitesse", "y": "acceleration"}, xAxisLabel="Vitesse (km/h)", yAxisLabel="Accélération (m/s)", xAxisProps={"domain": [20, 35]}, yAxisProps={"domain": [2, 7]}, withLegend=True, legendProps={"verticalAlign": "bottom", "height": 10}, style={"display": "none"}),
                                                                 dmc.BarChart(id="barplot_accel", h=400, dataKey="", data=[], type="stacked", orientation="vertical", series=[], withBarValueLabel=True, style={"display": "none"})],
                                                       grow=True),
+                                            # Titre et graphique nombre d'impacts
+                                            dmc.Group(children=[dmc.Title("Nombre d'impacts", id="title_nbimpact", order=3, mt="lg", style={"display": "none"}),
+                                                                dmc.Title("", id="title_empty", order=3, mt="lg", style={"display": "block"})],
+                                                      grow=True, gap="xl", justify="space-around"),
+                                            dmc.Group(children=[dmc.BarChart(id="barplot_impact", h=400, dataKey="", data=[], type="stacked", orientation="vertical", series=[], withBarValueLabel=True, style={"display": "none"}),
+                                                                dmc.ScatterChart(id="scatter_empty", h=300, data=[], dataKey={"x": "vitesse", "y": "acceleration"}, xAxisLabel="Vitesse (km/h)", yAxisLabel="Accélération (m/s)", xAxisProps={"domain": [20, 35]}, yAxisProps={"domain": [2, 7]}, withLegend=True, legendProps={"verticalAlign": "bottom", "height": 10}, style={"display": "none"})],
+                                                      grow=True),    
                                             html.Br(),
                                             # Donut pour repésenter note des joueuses
                                             dmc.Title("Comparaison niveau international", id="title_donut", order=3, mt="lg", style={"display": "none"}),

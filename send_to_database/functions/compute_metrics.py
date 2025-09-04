@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from pyproj import Proj
-from scipy.signal import medfilt
+from scipy.signal import medfilt, find_peaks
 from sklearn.cluster import DBSCAN
 
 # Convertir en utm
@@ -75,8 +75,10 @@ def clean_outliers(speed, accel, time):
     speed = medfilt(speed, kernel_size=9)
     accel = medfilt(accel, kernel_size=9)
     # Valeurs théoriques
-    x1, y1 = 8.547 + 3 * 0.51, 0 #vitesse - valeur article 
-    x2, y2 = 0, 5.629 + 3 * 0.26 #accélération
+    #x1, y1 = 8.547 + 3 * 0.51, 0 #vitesse - valeur article FILLE
+    #x2, y2 = 0, 5.629 + 3 * 0.26 #accélération - valeur article FILLE
+    x1, y1 =  8.29 + 3 * 0.51, 0 #vitesse - valeur article HOMME
+    x2, y2 = 0,  7.25 + 3 *  0.56 #accélération - valeur article HOMME
     # Calculer équation droite vitesse accélération
     a = (y2 - y1) / (x2 - x1)
     b = y1 - a * x1
@@ -114,26 +116,14 @@ def compute_speed_zone(array, max_min_speed, step_speed):
     return zone_vitesse
 
 # Compter le nombre d'accélération
-def count_nb_accel(array_accel, array_time, threshold_speed, threshold_time):
+def count_nb_accel(array_accel, threshold_accel, threshold_time):
     """
     Compter le nombre d'accélération au-delà d'un seuil
-    in: array accélération et temps, se
+    in: array accélération , seuil accélération et distance minimale entre deux pics
     out: nombre d'accélération
     """
-    indices = np.where(array_accel > threshold_speed)[0]
-    data = array_time[indices]
-    # Parcourir les temps et sélectionner si écart suffisant
-    lst_complete, lst_temp = [], []
-    for i in range(1, len(data)):
-        if data[i] - data[i-1] < threshold_time:
-            lst_temp.append(data[i-1])
-        else:
-            lst_complete.append(lst_temp)
-            lst_temp = []
-    # Filtrer la liste
-    lst_complete = [l for l in lst_complete if l and len(l) > 5]
-    # Compter nombre d'accélération
-    nb_accel = len(lst_complete)
+    pics = find_peaks(array_accel, height=threshold_accel, distance=threshold_time, prominence=0.7)
+    nb_accel = len(pics[0])
     return nb_accel
 
 # Créer une fonction unique
@@ -159,7 +149,7 @@ def compute_all(lat, lon, time, zone=18):
     # Mettre sous la forme d'un array
     bd = np.column_stack((time_clean, distance_clean, speed_clean, accel_clean))
     # Calculer zone de vitesse
-    lst_dist_speed = compute_speed_zone(bd, (0, 35), 5)
+    lst_dist_speed = compute_speed_zone(bd, (0, 40), 5)
     # Vitesse maximale - 100 observations
     sorted_speed = bd[bd[:, 2].argsort()[::-1]]
     lst_speed = list(sorted_speed[:100, 2])
@@ -169,5 +159,5 @@ def compute_all(lat, lon, time, zone=18):
     lst_accel = list(sorted_accel[:100, 3])
     lst_accel_time = list(sorted_accel[:100, 0])
     #Nombre d'accélération
-    nb_accel = count_nb_accel(accel_clean, time_clean, 3, 8)
+    nb_accel = count_nb_accel(accel_clean, 3, 10)
     return lst_dist_speed, lst_speed, lst_speed_time, lst_accel, lst_accel_time, nb_accel

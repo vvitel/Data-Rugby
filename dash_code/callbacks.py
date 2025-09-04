@@ -63,12 +63,25 @@ def format_for_barplot_accel(filter_df, choice):
      for i, row in filter_df.iterrows():
           name = row[choice]
           nb_accel = row["nb_acceleration"]
-          dic = {"nom": name, "nombre d'accélération":nb_accel}
+          dic = {"nom": name, "nombre d'accélération": nb_accel}
           lst_barplot_accel.append(dic)
           lst_barplot_color = [{"name": "nombre d'accélération", "color": "violet.6"}]
      # Trier par ordre décroissant
      lst_barplot_accel = sorted(lst_barplot_accel, key=lambda x: x["nombre d'accélération"], reverse=True)
      return lst_barplot_accel, lst_barplot_color
+
+def format_for_barplot_impact(filter_df, choice):
+     # Formatter les données
+     lst_barplot_impact = []
+     for i, row in filter_df.iterrows():
+          name = row[choice]
+          nb_impact = row["nb_impact"]
+          dic = {"nom": name, "nombre d'impact": nb_impact}
+          lst_barplot_impact.append(dic)
+          lst_barplot_color = [{"name": "nombre d'impact", "color": "indigo.6"}]
+     # Trier par ordre décroissant
+     lst_barplot_impact = sorted(lst_barplot_impact, key=lambda x: x["nombre d'impact"], reverse=True)
+     return lst_barplot_impact, lst_barplot_color
 
 # Mettre à jour les selects en fonction des sélections en cours - GPS
 @callback(
@@ -164,7 +177,7 @@ def create_scatter_speedaccel(date, match, joueur):
     else:
          return [], {"display": "none"}, {"display": "none"}
 
-# Créer le barplot nombre d'accélération
+# Créer le barplot nombre d'accélérations
 @callback([Output("barplot_accel", "data"),
            Output("barplot_accel", "dataKey"),
            Output("barplot_accel", "series"),
@@ -192,6 +205,34 @@ def create_barplot_accel(date, match, joueur):
     else:
          return [], "nom", [], {"display": "none"}, {"display": "none"}
     
+# Créer le barplot nombre d'impacts
+@callback([Output("barplot_impact", "data"),
+           Output("barplot_impact", "dataKey"),
+           Output("barplot_impact", "series"),
+           Output("title_nbimpact", "style"),
+           Output("barplot_impact", "style")],
+           [Input("select_date", "value"),
+           Input("select_match", "value"),
+           Input("select_joueur", "value")],
+           prevent_initial_call=True)
+def create_barplot_impact(date, match, joueur):
+    # Cas si on veut les résultats pour un match
+    if (date and match) and not joueur:
+        # Filtrer les données en fonction de la valeurs des selects
+        df_filter = df[(df["date"] == date) & (df["game"] == match)]
+        lst_data, lst_color = format_for_barplot_impact(df_filter, "player")
+        return lst_data, "nom", lst_color, {"display": "block"}, {"display": "block"}
+     # Cas si on veut les résultats pour un joueur
+    elif joueur:
+        # Filtrer les données en fonction de la valeurs des selects
+        df_filter = df[(df["player"] == joueur)]
+        if date : df_filter = df_filter[(df_filter["date"] == date)]
+        if match : df_filter = df_filter[(df_filter["game"] == match)]
+        lst_data, lst_color = format_for_barplot_impact(df_filter, "game")
+        return lst_data, "nom", lst_color, {"display": "block"}, {"display": "block"}
+    else:
+         return [], "nom", [], {"display": "none"}, {"display": "none"}
+    
 # Créer donutchart pour comparaison avec le niveau international
 @callback([Output("donut_vmax", "data"),
            Output("donut_vmax", "style"),
@@ -208,8 +249,8 @@ def create_donutchart(joueur):
         measured_vmax = max([i[0] for i in df_filter["vitesse"]])
         measured_amax = max([i[0] for i in df_filter["accel"]])
         # Calculer une note sur 100
-        note_100_vmax = round(measured_vmax * 100 / 9.53, 1)
-        note_100_amax = round(measured_amax * 100 / 5.70, 1)
+        note_100_vmax = round(measured_vmax * 100 / 12.42, 1)
+        note_100_amax = round(measured_amax * 100 / 9.5, 1)
         remainder_100_vmax = round(100 - note_100_vmax, 1)
         remainder_100_amax = round(100 - note_100_amax, 1)
         # Éléments à retourner
