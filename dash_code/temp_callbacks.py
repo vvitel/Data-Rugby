@@ -3,29 +3,14 @@ import pandas as pd
 import time
 from dash import callback, clientside_callback, callback_context, dcc, Output, Input, State
 from dash_code.layout import create_layout
-from send_to_database.functions.connect_database import connect_mongodb
+from dash_code.repository.mongo import MongoDB
 from dash_code.functions.dash_functions import filter_dataframe
 
+
 # Connection à la base de données
-clt, collection_gps, collection_video, collection_annotation = connect_mongodb()
+mongo = MongoDB()
 
-# Récupérer tous les documents gps en dataframe
-documents_gps = collection_gps.find({})
-documents_gps = list(documents_gps)
-df = pd.DataFrame(documents_gps)
 
-# Récupérer tous les documents video en dataframe
-documents_video = collection_video.find({})
-documents_video = list(documents_video)
-df_video = pd.DataFrame(documents_video)
-
-# Récupérer les informations pour les noms, dates, matchs
-date_dic = [{"value": i, "label": i} for i in pd.unique(df["date"])]
-match_dic = [{"value": i, "label": i} for i in pd.unique(df["game"])]
-joueur_dic = [{"value": i, "label": i} for i in pd.unique(df["player"])]
-
-# Récupérer le front
-front = create_layout(date_dic, match_dic, joueur_dic)
 
 # Functions
 def format_for_barplot_speeddistance(filter_df, choice):
@@ -84,22 +69,7 @@ def format_for_barplot_impact(filter_df, choice):
      lst_barplot_impact = sorted(lst_barplot_impact, key=lambda x: x["nombre d'impact"], reverse=True)
      return lst_barplot_impact, lst_barplot_color
 
-# Mettre à jour les selects en fonction des sélections en cours - GPS
-@callback(
-    [Output("select_date", "data"),
-     Output("select_match", "data"),
-     Output("select_joueur", "data")],
-    [Input("select_date", "value"),
-     Input("select_match", "value"),
-     Input("select_joueur", "value")],
-     prevent_initial_call=True)
-def update_select(date, match, file):    
-    # Filtrer les données
-    filtered_data = filter_dataframe(df, selected_date=date, selected_match=match, selected_name=file)
-    date_options = np.unique(filtered_data.date)
-    match_options = np.unique(filtered_data.game)
-    player_options = np.unique(filtered_data.player)
-    return date_options, match_options, player_options
+
 
 # Mettre à jour les selects en fonction des sélections en cours - VIDEO
 @callback(
@@ -137,6 +107,10 @@ def create_barplot_speeddistance(date, match, joueur):
     # Cas si on veut les résultats pour un match
     if (date and match) and not joueur:
         # Filtrer les données en fonction de la valeurs des selects
+        mongo.find_gps_by_date_and_match(date, match)
+
+
+        
         df_filter = df[(df["date"] == date) & (df["game"] == match)]
         lst_data = format_for_barplot_speeddistance(df_filter, "player")
         height_barplot = 400 if 40 * len(lst_data) < 400 else 40 * len(lst_data)

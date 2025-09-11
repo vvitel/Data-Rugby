@@ -23,35 +23,63 @@ class MongoDB:
             cls._instance.collection_annotation = db["annotation"]
         return cls._instance
     
-    def get_distinct_players(self):
+    def get_distinct_players(self, collection):
         pipeline = [
             {"$group": {"_id": "$player"}},
             {"$project": {"_id": 0, "player": "$_id"}}
         ]
-        return list(self.collection_gps.aggregate(
+        return list(collection.aggregate(
             pipeline,
             maxTimeMS=60000,
             allowDiskUse=True
         ))
         
-    def get_distinct_dates(self):
+    def get_distinct_dates(self, collection):
         pipeline = [
             {"$group": {"_id": "$date"}},
             {"$project": {"_id": 0, "date": "$_id"}}
         ]
-        return list(self.collection_gps.aggregate(
+        return list(collection.aggregate(
             pipeline,
             maxTimeMS=60000,
             allowDiskUse=True
         ))
         
-    def get_distinct_matchs(self):
+    def get_distinct_matchs(self, collection):
         pipeline = [
             {"$group": {"_id": "$game"}},
             {"$project": {"_id": 0, "game": "$_id"}}
         ]
-        return list(self.collection_gps.aggregate(
+        return list(collection.aggregate(
             pipeline,
             maxTimeMS=60000,
             allowDiskUse=True
         ))
+    
+    def find_gps_unique(self, date=None, match=None, player=None):
+        query = {}
+        if date:
+            query["date"] = date
+        if match:
+            query["game"] = match
+        if player:
+            query["player"] = player
+
+        pipeline = [
+            {"$match": query},
+            {"$group": {
+                "_id": None,
+                "dates": {"$addToSet": "$date"},
+                "matches": {"$addToSet": "$game"},
+                "players": {"$addToSet": "$player"}
+            }},
+            {"$project": {"_id": 0}}
+        ]
+        res = list(self.collection_gps.aggregate(pipeline))
+        if res:
+            return res[0]["dates"], res[0]["matches"], res[0]["players"]
+        return [], [], []    
+
+    def find_gps_by_date_and_match(self, date, match):
+        return self.collection_gps.find({"date": date, "game": match})
+
