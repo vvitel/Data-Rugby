@@ -93,7 +93,7 @@ def format_for_barplot_impact(filter_df, choice):
      Input("select_match", "value"),
      Input("select_joueur", "value")],
      prevent_initial_call=True)
-def update_select(date, match, file):
+def update_select(date, match, file):    
     # Filtrer les données
     filtered_data = filter_dataframe(df, selected_date=date, selected_match=match, selected_name=file)
     date_options = np.unique(filtered_data.date)
@@ -112,6 +112,7 @@ def update_select(date, match, file):
      prevent_initial_call=True)
 def update_select(date, match, file):
     #filtrer les données
+    print("gdsgs")
     filtered_data = filter_dataframe(df, selected_date=date, selected_match=match, selected_name=file)
     date_options = np.unique(filtered_data.date)
     match_options = np.unique(filtered_data.game)

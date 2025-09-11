@@ -1,7 +1,11 @@
 from pymongo import MongoClient
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def connect_mongodb():
-    uri = ""
+    uri = os.getenv("DATABASE_URI")
     client = MongoClient(uri)
     client.admin.command("ping")
     db = client["GPS_database"]
