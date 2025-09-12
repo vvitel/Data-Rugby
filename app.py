@@ -1,6 +1,7 @@
 from dash import Dash
 from dash_code.layout import create_layout
 from dash_code.callbacks.annotation import *
+from dash_code.callbacks.gps import *
 from dash_code.callbacks.select import *
 from dash_code.callbacks.video import *
 from dash_code.repository.mongo import MongoDB

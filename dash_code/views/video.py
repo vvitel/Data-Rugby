@@ -117,7 +117,7 @@ def gps_video(dic_date, dic_match, dic_joueur):
                                     style={"position": "relative"},
                                 )
                             ),
-                            dcc.Store(id="store_inutile"),
+                            dcc.Store(id="store_write_js"),
                             html.Br(),
                             dmc.Slider(
                                 id="slider_action",
@@ -127,7 +127,6 @@ def gps_video(dic_date, dic_match, dic_joueur):
                                 style={"display": "none"},
                                 styles={"markLabel": {"display": "none"}},
                             )
-                            # {"markLabel": {"display": "none"}
                         ],
                         span=10,
                     ),

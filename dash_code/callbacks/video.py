@@ -1,5 +1,5 @@
 import numpy as np
-from dash import callback, Output, Input
+from dash import callback, clientside_callback, Output, Input
 from dash_code.repository.mongo import MongoDB
 
 # Connection à la base de données
@@ -57,7 +57,6 @@ def create_slider(date, match, joueur, metric, action):
     prevent_initial_call=True,
 )
 def show_video(date, match, joueur, metric, action, value, marks):
-    
     # Cas si on veut voir toute la vidéo
     if (date and match) and not action and not joueur and not metric:
         # Requêter la base de données
@@ -88,8 +87,6 @@ def show_video(date, match, joueur, metric, action, value, marks):
         document_video = mongo.find_video_by_date_and_match(date, match)
         id_vid = document_video["lien"]
         url = f"https://www.youtube.com/watch?v={id_vid}"
-
-        
         tps_sec = next(item["label"] for item in marks if item["value"] == value)
         # Préciser le temps dans l'url
         url = f"{url}&t={tps_sec}s"
@@ -97,7 +94,22 @@ def show_video(date, match, joueur, metric, action, value, marks):
     else:
         return "", {"display": "none"}
 
-
+# Déclencher le script JS pour dessiner sur la vidéo
+clientside_callback(
+    """
+    function(date, match) {
+        if (date && match) {
+            setTimeout(function() {
+                window.trigger();
+            }, 500);
+        }
+        return "";
+    }
+    """,
+    Output("store_write_js", "data"),
+    Input("select_date_video", "value"),
+    Input("select_match_video", "value")
+)
 
 
 

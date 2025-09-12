@@ -81,7 +81,7 @@ class MongoDB:
         return [], [], []    
 
     def find_gps_by_player(self, player):
-        return self.collection_gps.find_one({"player": player})    
+        return self.collection_gps.find({"player": player})    
 
     def find_gps_by_date_and_match(self, date, match):
         return self.collection_gps.find({"date": date, "game": match})
