@@ -80,6 +80,14 @@ class MongoDB:
             return res[0]["dates"], res[0]["matches"], res[0]["players"]
         return [], [], []    
 
+    def find_gps_by_player(self, player):
+        return self.collection_gps.find_one({"player": player})    
+
     def find_gps_by_date_and_match(self, date, match):
         return self.collection_gps.find({"date": date, "game": match})
+    
+    def find_gps_by_date_and_match_and_player(self, date, match, player):
+        return self.collection_gps.find_one({"date": date, "game": match, "player": player})
 
+    def find_video_by_date_and_match(self, date, match):
+        return self.collection_video.find_one({"date": date, "game": match})
