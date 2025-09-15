@@ -25,6 +25,10 @@ mongo = MongoDB()
         Input("btn_highlight", "n_clicks"),
         Input("btn_suppr", "n_clicks"),
         Input("btn_senddata", "n_clicks"),
+        Input("btn_penalite_pour", "n_clicks"),
+        Input("btn_penalite_contre", "n_clicks"),
+        Input("btn_franchissement_pour", "n_clicks"),
+        Input("btn_franchissement_contre", "n_clicks"),
     ],
     [State("input_namegame", "value"), State("store_annot", "data")],
 )
@@ -40,6 +44,10 @@ def annotate_game(
     btn_highlight,
     btn_suppr,
     btn_senddata,
+    btn_penalite_pour,
+    btn_penalite_contre,
+    btn_franchissement_pour,
+    btn_franchissement_contre,
     input_namegame,
     store_annot,
 ):
@@ -65,6 +73,10 @@ def annotate_game(
         "btn_renvoi": "renvoi",
         "btn_essai": "essai",
         "btn_highlight": "highlight",
+        "btn_penalite_pour": "penalite_pour",
+        "btn_penalite_contre": "penalite_contre",
+        "btn_franchissement_pour": "franchissement_pour",
+        "btn_franchissement_contre": "franchissement_contre",
     }
 
     # Ajouter une annotation

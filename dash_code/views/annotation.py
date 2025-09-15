@@ -53,6 +53,28 @@ def annot_live():
                     wrap="nowrap",
                 ),
                 html.Br(),
+                html.Br(),
+                # Ligne 5
+                dmc.Text("Ajout ETS", size="xl", td="underline", c="red"),
+                dmc.Group(
+                    children=[
+                        dmc.Button("Pénalité pour", id="btn_penalite_pour", color="indigo"),
+                        dmc.Button("Pénalité contre", id="btn_penalite_contre", color="grape"),
+                    ],
+                    grow=True,
+                    wrap="nowrap",
+                ),
+                html.Br(),
+                # Ligne 6
+                dmc.Group(
+                    children=[
+                        dmc.Button("Franchissement pour", id="btn_franchissement_pour", color="indigo"),
+                        dmc.Button("Franchissement contre", id="btn_franchissement_contre", color="grape"),
+                    ],
+                    grow=True,
+                    wrap="nowrap",
+                ),
+                html.Br(),
                 # Afficher les notifications
                 dmc.Alert(
                     id="alert_annot_add",

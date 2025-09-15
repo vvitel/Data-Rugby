@@ -25,6 +25,7 @@ clt, collection_gps, _, _ = connect_mongodb()
 files = os.listdir("../temp")
 for f in tqdm(files):
     date, player, time, latitude, longitude = get_data(f"../temp/{f}", start, end)
+    print(player)
 
     # Calculer les métriques
     l1, l2, l3, l4, l5, nb_accel = compute_all(latitude, longitude, time, zone=18)
