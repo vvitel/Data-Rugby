@@ -9,3 +9,5 @@ scikit-learn==1.7.0
 scipy==1.15.3
 yt-dlp==2025.6.9
 python-dotenv==1.1.1
+boto3==1.40.30
+gunicorn==23.0.0
