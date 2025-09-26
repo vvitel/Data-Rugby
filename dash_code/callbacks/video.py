@@ -99,48 +99,50 @@ def show_video(date, match, joueur, metric, action, value, marks):
 @callback(
         Output("store_coordinates", "data"),
     [
-        Input("select_match_video", "value")
+        Input("select_date_video", "value"),
+        Input("select_match_video", "value"),
+        State("current_frame", "data")
     ],
     prevent_initial_call=True,
 )
-def get_player_position(match):
-    if match:
-        document_coordinates = mongo.find_coordinates_by_match(match)
-        result = {str(doc["frame"]): [doc["x"], doc["y"]] for doc in document_coordinates}
-        return result
+def get_player_position(date, match, current_frame):
+    if (date and match):
+        document_coordinates = mongo.find_coordinates_by_date_and_match(date, match, int(current_frame))
+        res = {}
+        for doc in document_coordinates:
+            res[doc["player"]] = {"x": doc["x"], "y": doc["y"]}
+        return res
     else:
         return {}
     
 clientside_callback(
     """
     function(currentTime, data, date, match) {
+        console.log(data)
         if (!date || !match) return window.dash_clientside.no_update;
         if (!data || Object.keys(data).length === 0 || !currentTime) return window.dash_clientside.no_update;
 
         const fps = 29.97002997002997;
         const frame = Math.round(currentTime * fps).toString();
 
-        if (!(frame in data)) return window.dash_clientside.no_update;
-
-        const point = data[frame];
-
-        return {
-            data: [
-                {
-                    x: [point[0]],
-                    y: [point[1]],
-                    mode: "markers",
-                    marker: { size: 12, color: "blue" },
-                    showlegend: false
-                },
-                {
+        const points = [{
                     x: [50, 50],
                     y: [-60, 0],
                     mode: "lines",
                     line: { color: "black", width: 2 },
                     showlegend: false
-                }
-            ],
+                }]
+
+        for (const property in data){
+            points.push({x: [data[property].x[frame]],
+                        y: [data[property].y[frame]],
+                    mode: "markers",
+                    marker: { size: 12, color: "blue" },
+                    showlegend: false})
+        }
+
+        return {
+            data: points,
             layout: {
                 xaxis: {
                     title: "x",
@@ -169,7 +171,7 @@ clientside_callback(
         Input("select_match_video", "value")
     ],
     prevent_initial_call=True
-)
+)    
 
 
 

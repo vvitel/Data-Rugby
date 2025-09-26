@@ -131,6 +131,8 @@ def gps_video(dic_date, dic_match, dic_joueur):
                             html.Br(),
                             # Afficher position des joueurs
                             dcc.Store(id="store_coordinates"),
+                            # Stocker la frame actuelle de la vidéo,
+                            dcc.Store(id="current_frame", data=0),
                             # Sorties inutiles mais utiles pour clientside_callback
                             dcc.Store(id="store_inutile_utile"),
                             # Affichage graphique avec les positions

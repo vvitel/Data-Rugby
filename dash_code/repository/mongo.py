@@ -94,6 +94,19 @@ class MongoDB:
     def find_video_by_date_and_match(self, date, match):
         return self.collection_video.find_one({"date": date, "game": match})
     
-    def find_coordinates_by_match(self, match):
-        return self.collection_coordinates.find({"game": match, "player": "Briana Miller"})
-
+    def find_coordinates_by_date_and_match(self, date, match, start):
+        pipeline = [
+            {"$match": {"game": match, "date": date}},
+            {
+                "$project": {
+                    "x": {"$slice": ["$x", start, start + 15000]},
+                    "y": {"$slice": ["$y", start, start + 15000]},
+                    "player": "$player",
+                }
+            },
+        ]
+        return list(
+            self.collection_coordinates.aggregate(
+                pipeline, maxTimeMS=60000, allowDiskUse=True
+            )
+        )
