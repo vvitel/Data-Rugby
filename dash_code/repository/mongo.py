@@ -11,6 +11,7 @@ class MongoDB:
     collection_gps = None
     collection_video = None
     collection_annotation = None
+    collection_coordinates = None
 
     def __new__(cls):
         if cls._instance is None:
@@ -21,6 +22,7 @@ class MongoDB:
             cls._instance.collection_gps = db["gps"]
             cls._instance.collection_video = db["video"]
             cls._instance.collection_annotation = db["annotation"]
+            cls._instance.collection_coordinates = db["coordinates"]
         return cls._instance
     
     def get_distinct_players(self, collection):
@@ -91,3 +93,7 @@ class MongoDB:
 
     def find_video_by_date_and_match(self, date, match):
         return self.collection_video.find_one({"date": date, "game": match})
+    
+    def find_coordinates_by_match(self, match):
+        return self.collection_coordinates.find({"game": match, "player": "Briana Miller"})
+

@@ -90,7 +90,7 @@ def gps_video(dic_date, dic_match, dic_joueur):
                                 html.Div(
                                     [
                                         dash_player.DashPlayer(
-                                            id="yt_video",
+                                            id="player_video",
                                             url="",
                                             controls=True,
                                             playing=True,
@@ -117,8 +117,8 @@ def gps_video(dic_date, dic_match, dic_joueur):
                                     style={"position": "relative"},
                                 )
                             ),
-                            dcc.Store(id="store_write_js"),
                             html.Br(),
+                            # Slider pour sélectionner les temps forts
                             dmc.Slider(
                                 id="slider_action",
                                 restrictToMarks=True,
@@ -126,6 +126,20 @@ def gps_video(dic_date, dic_match, dic_joueur):
                                 marks=[{"value": 0}],
                                 style={"display": "none"},
                                 styles={"markLabel": {"display": "none"}},
+                            ),
+                            # Mettre à jour le graphique en fonction de la vidéo
+                            html.Br(),
+                            # Afficher position des joueurs
+                            dcc.Store(id="store_coordinates"),
+                            # Sorties inutiles mais utiles pour clientside_callback
+                            dcc.Store(id="store_inutile_utile"),
+                            # Affichage graphique avec les positions
+                            dmc.Center(
+                                dcc.Graph(
+                                    id="map_chart",
+                                    figure={},
+                                    style={"display": "block", "height": "300px", "width": "500px"}
+                                )
                             )
                         ],
                         span=10,

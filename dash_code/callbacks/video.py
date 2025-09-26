@@ -1,9 +1,13 @@
 import numpy as np
-from dash import callback, clientside_callback, Output, Input
+from dash import callback, clientside_callback, Output, Input, State
 from dash_code.repository.mongo import MongoDB
 
 # Connection à la base de données
 mongo = MongoDB()
+
+# Constantes d'affichage
+visible = {"display": "block"}
+hidden = {"display": "none"}
 
 # Créer slider pour sélectionner les événements
 @callback(
@@ -26,7 +30,7 @@ def create_slider(date, match, joueur, metric, action):
         # Requêter la base de données
         document = mongo.find_video_by_date_and_match(date, match)
         kickoff = document["kickoff"]
-        duration_vidéo = document["temps"]
+        duration_vidéo = document["nb_frames"] / document["fps"]
         # Occurences de l'action sélectionnée
         event = np.array(document[action]).astype(float)
         # Convertir le temps - on ajoute 4 heures
@@ -38,13 +42,17 @@ def create_slider(date, match, joueur, metric, action):
             for label, percent in zip(event_time, event_percent)
         ]
         value = marks[0]["value"]
-        return value, marks, {"display": "block"}
+        return value, marks, visible
     else:
-        return 0, [{"value": 0}], {"display": "none"}
+        return 0, [{"value": 0}], hidden
 
 # Afficher la vidéo
 @callback(
-    [Output("yt_video", "url"), Output("yt_video", "style")],
+    [
+        Output("player_video", "url"),
+        Output("player_video", "seekTo"),
+        Output("player_video", "style")
+    ],
     [
         Input("select_date_video", "value"),
         Input("select_match_video", "value"),
@@ -52,7 +60,7 @@ def create_slider(date, match, joueur, metric, action):
         Input("select_metrique_video", "value"),
         Input("select_action_video", "value"),
         Input("slider_action", "value"),
-        Input("slider_action", "marks"),
+        Input("slider_action", "marks")
     ],
     prevent_initial_call=True,
 )
@@ -61,16 +69,14 @@ def show_video(date, match, joueur, metric, action, value, marks):
     if (date and match) and not action and not joueur and not metric:
         # Requêter la base de données
         document_video = mongo.find_video_by_date_and_match(date, match)
-        id_vid = document_video["lien"]
-        url = f"https://www.youtube.com/watch?v={id_vid}"
-        return url, {"display": "block"}
+        lien = document_video["lien"]
+        return lien, 0, visible
     # Cas ou on souhaite voir vidéo métrique max
     if date and match and joueur and metric and not action:
         # Requêter la base de données
         document_video = mongo.find_video_by_date_and_match(date, match)
-        id_vid = document_video["lien"]
+        lien = document_video["lien"]
         kickoff = document_video["kickoff"]
-        url = f"https://www.youtube.com/watch?v={id_vid}"
         # Requêter la base de données
         document_gps = mongo.find_gps_by_date_and_match_and_player(date, match, joueur)
         # Trouver temps correspondant à la valeur maximale
@@ -78,21 +84,94 @@ def show_video(date, match, joueur, metric, action, value, marks):
         # Convertir le temps - on ajoute 4 heures
         tps_max_convert = (tps_max + 14400) - float(kickoff)
         tps_max_convert = round(tps_max_convert)
-        # Préciser le temps dans l'url
-        url = f"{url}&t={tps_max_convert}s"
-        return url, {"display": "block"}
+        return lien, tps_max_convert, visible
     # Afficher la vidéo avec possibilité de sélectionner les actions
     if (date and match and action) and not joueur and not metric:
         # Requêter la base de données
         document_video = mongo.find_video_by_date_and_match(date, match)
-        id_vid = document_video["lien"]
-        url = f"https://www.youtube.com/watch?v={id_vid}"
+        lien = document_video["lien"]
         tps_sec = next(item["label"] for item in marks if item["value"] == value)
-        # Préciser le temps dans l'url
-        url = f"{url}&t={tps_sec}s"
-        return url, {"display": "block"}
+        return lien, tps_sec, visible
     else:
-        return "", {"display": "none"}
+        return "", 0, hidden
+    
+# Récupérer les positions des joueurs
+@callback(
+        Output("store_coordinates", "data"),
+    [
+        Input("select_match_video", "value")
+    ],
+    prevent_initial_call=True,
+)
+def get_player_position(match):
+    if match:
+        document_coordinates = mongo.find_coordinates_by_match(match)
+        result = {str(doc["frame"]): [doc["x"], doc["y"]] for doc in document_coordinates}
+        return result
+    else:
+        return {}
+    
+clientside_callback(
+    """
+    function(currentTime, data, date, match) {
+        if (!date || !match) return window.dash_clientside.no_update;
+        if (!data || Object.keys(data).length === 0 || !currentTime) return window.dash_clientside.no_update;
+
+        const fps = 29.97002997002997;
+        const frame = Math.round(currentTime * fps).toString();
+
+        if (!(frame in data)) return window.dash_clientside.no_update;
+
+        const point = data[frame];
+
+        return {
+            data: [
+                {
+                    x: [point[0]],
+                    y: [point[1]],
+                    mode: "markers",
+                    marker: { size: 12, color: "blue" },
+                    showlegend: false
+                },
+                {
+                    x: [50, 50],
+                    y: [-60, 0],
+                    mode: "lines",
+                    line: { color: "black", width: 2 },
+                    showlegend: false
+                }
+            ],
+            layout: {
+                xaxis: {
+                    title: "x",
+                    range: [100, 0],
+                    autorange: false,
+                    dtick: 1
+                },
+                yaxis: {
+                    title: "y",
+                    range: [0, -60],
+                    autorange: false,
+                    dtick: 1
+                },
+                height: 300,
+                margin: { t: 0, b: 0, l: 0, r: 0 },
+                plot_bgcolor: "lightgreen"
+            }
+        };
+    }
+    """,
+    Output("map_chart", "figure"), 
+    [
+        Input("player_video", "currentTime"),
+        Input("store_coordinates", "data"),
+        Input("select_date_video", "value"),
+        Input("select_match_video", "value")
+    ],
+    prevent_initial_call=True
+)
+
+
 
 # Déclencher le script JS pour dessiner sur la vidéo
 clientside_callback(
@@ -106,9 +185,11 @@ clientside_callback(
         return "";
     }
     """,
-    Output("store_write_js", "data"),
+    Output("store_inutile_utile", "data", allow_duplicate=True),
     Input("select_date_video", "value"),
-    Input("select_match_video", "value")
+    Input("select_match_video", "value"),
+     prevent_initial_call=True
+    
 )
 
 
