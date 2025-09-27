@@ -1,13 +1,22 @@
 import numpy as np
 from dash import callback, clientside_callback, Output, Input, State
 from dash_code.repository.mongo import MongoDB
+from dash_code.managers.videocache import VideoCacheManager
+import plotly.graph_objects as go
 
 # Connection à la base de données
 mongo = MongoDB()
 
+cache_manager = VideoCacheManager()
+
+BUFFER_SIZE = 300
+FPS = 29.97002997002997
+
+
 # Constantes d'affichage
 visible = {"display": "block"}
 hidden = {"display": "none"}
+
 
 # Créer slider pour sélectionner les événements
 @callback(
@@ -46,12 +55,13 @@ def create_slider(date, match, joueur, metric, action):
     else:
         return 0, [{"value": 0}], hidden
 
+
 # Afficher la vidéo
 @callback(
     [
         Output("player_video", "url"),
         Output("player_video", "seekTo"),
-        Output("player_video", "style")
+        Output("player_video", "style"),
     ],
     [
         Input("select_date_video", "value"),
@@ -60,7 +70,7 @@ def create_slider(date, match, joueur, metric, action):
         Input("select_metrique_video", "value"),
         Input("select_action_video", "value"),
         Input("slider_action", "value"),
-        Input("slider_action", "marks")
+        Input("slider_action", "marks"),
     ],
     prevent_initial_call=True,
 )
@@ -94,85 +104,83 @@ def show_video(date, match, joueur, metric, action, value, marks):
         return lien, tps_sec, visible
     else:
         return "", 0, hidden
-    
-# Récupérer les positions des joueurs
+
+
 @callback(
-        Output("store_coordinates", "data"),
+    Output("map_chart", "figure"),
     [
         Input("select_date_video", "value"),
         Input("select_match_video", "value"),
-        State("current_frame", "data")
+        Input("player_video", "currentTime"),
     ],
     prevent_initial_call=True,
 )
-def get_player_position(date, match, current_frame):
-    if (date and match):
-        document_coordinates = mongo.find_coordinates_by_date_and_match(date, match, int(current_frame))
+def display_plot_player_position(date, match, current_time):
+
+    if not date or not match or not current_time:
+        return
+
+    frame = int(round(current_time * FPS))
+
+    # Check si on a dans le cache la data
+    tracking = cache_manager.get(date, match, frame)
+
+    # sinon faire un update avec la bdd
+    if tracking == None:
+        cache_manager.clear_key(date, match)
+
+        document_coordinates = mongo.find_coordinates_by_date_and_match(
+            date, match, frame, BUFFER_SIZE
+        )
         res = {}
         for doc in document_coordinates:
             res[doc["player"]] = {"x": doc["x"], "y": doc["y"]}
-        return res
-    else:
-        return {}
-    
-clientside_callback(
-    """
-    function(currentTime, data, date, match) {
-        console.log(data)
-        if (!date || !match) return window.dash_clientside.no_update;
-        if (!data || Object.keys(data).length === 0 || !currentTime) return window.dash_clientside.no_update;
 
-        const fps = 29.97002997002997;
-        const frame = Math.round(currentTime * fps).toString();
+        tracking = cache_manager.set(date, match, frame, frame + BUFFER_SIZE, res)
 
-        const points = [{
-                    x: [50, 50],
-                    y: [-60, 0],
-                    mode: "lines",
-                    line: { color: "black", width: 2 },
-                    showlegend: false
-                }]
+    index = (frame - tracking["start"]) % BUFFER_SIZE
 
-        for (const property in data){
-            points.push({x: [data[property].x[frame]],
-                        y: [data[property].y[frame]],
-                    mode: "markers",
-                    marker: { size: 12, color: "blue" },
-                    showlegend: false})
-        }
+    points = [
+        go.Scatter(
+            x=[50, 50],
+            y=[-60, 0],
+            mode="lines",
+            line={"color": "black", "width": 2},
+            showlegend=False,
+        )
+    ]
 
-        return {
-            data: points,
-            layout: {
-                xaxis: {
-                    title: "x",
-                    range: [100, 0],
-                    autorange: false,
-                    dtick: 1
-                },
-                yaxis: {
-                    title: "y",
-                    range: [0, -60],
-                    autorange: false,
-                    dtick: 1
-                },
-                height: 300,
-                margin: { t: 0, b: 0, l: 0, r: 0 },
-                plot_bgcolor: "lightgreen"
-            }
-        };
-    }
-    """,
-    Output("map_chart", "figure"), 
-    [
-        Input("player_video", "currentTime"),
-        Input("store_coordinates", "data"),
-        Input("select_date_video", "value"),
-        Input("select_match_video", "value")
-    ],
-    prevent_initial_call=True
-)    
+    for player_name, player_data in tracking["players"].items():
+        points.append(
+            go.Scatter(
+                x=[player_data["x"][index]],
+                y=[player_data["y"][index]],
+                mode="markers",
+                marker={"size": 12, "color": "blue"},
+                showlegend=False,
+            )
+        )
 
+    return go.Figure(
+        data=points,
+        layout=go.Layout(
+            plot_bgcolor="lightgreen",
+            height=300,
+            margin=go.layout.Margin(t=0, b=0, l=0, r=0),
+            xaxis=go.layout.XAxis(
+                autorange=False,
+                dtick=1,
+                range=[100, 0],
+                showticklabels=False,
+            ),
+            yaxis=go.layout.YAxis(
+                autorange=False,
+                dtick=1,
+                range=[0, -60],
+                showticklabels=False,
+            ),
+        ),
+    )
 
 
 # Déclencher le script JS pour dessiner sur la vidéo
@@ -190,14 +198,5 @@ clientside_callback(
     Output("store_inutile_utile", "data", allow_duplicate=True),
     Input("select_date_video", "value"),
     Input("select_match_video", "value"),
-     prevent_initial_call=True
-    
+    prevent_initial_call=True,
 )
-
-
-
-
-
-
-    
-

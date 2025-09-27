@@ -94,13 +94,13 @@ class MongoDB:
     def find_video_by_date_and_match(self, date, match):
         return self.collection_video.find_one({"date": date, "game": match})
     
-    def find_coordinates_by_date_and_match(self, date, match, start):
+    def find_coordinates_by_date_and_match(self, date, match, start, buffer_size):
         pipeline = [
             {"$match": {"game": match, "date": date}},
             {
                 "$project": {
-                    "x": {"$slice": ["$x", start, start + 15000]},
-                    "y": {"$slice": ["$y", start, start + 15000]},
+                    "x": {"$slice": ["$x", start, start + buffer_size]},
+                    "y": {"$slice": ["$y", start, start + buffer_size]},
                     "player": "$player",
                 }
             },
