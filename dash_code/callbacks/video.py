@@ -1,6 +1,7 @@
 import numpy as np
-from dash import callback, clientside_callback, Output, Input, State
+from dash import callback, clientside_callback, Output, Input, State, no_update
 from dash_code.repository.mongo import MongoDB
+import plotly.graph_objs as go
 
 # Connection à la base de données
 mongo = MongoDB()
@@ -94,110 +95,94 @@ def show_video(date, match, joueur, metric, action, value, marks):
         return lien, tps_sec, visible
     else:
         return "", 0, hidden
-    
-# Récupérer les positions des joueurs
+
+# Requêter la base de données pour avoir les positions des joueurs   
 @callback(
+    [
         Output("store_coordinates", "data"),
+        Output("trigger_request", "data", allow_duplicate=True)
+    ],
     [
         Input("select_date_video", "value"),
         Input("select_match_video", "value"),
-        State("current_frame", "data")
+        Input("trigger_request", "data")
+    ],
+    [
+        State("start_request", "data"),
     ],
     prevent_initial_call=True,
 )
-def get_player_position(date, match, current_frame):
-    if (date and match):
-        document_coordinates = mongo.find_coordinates_by_date_and_match(date, match, int(current_frame))
+def get_player_position(date, match, trigger_request, start_request):
+    if (date and match and trigger_request):
+        trigger_request = False
+        document_coordinates = mongo.find_coordinates_by_date_and_match(date, match, int(start_request))
         res = {}
         for doc in document_coordinates:
             res[doc["player"]] = {"x": doc["x"], "y": doc["y"]}
-        return res
+        return res, trigger_request
     else:
-        return {}
-    
-clientside_callback(
-    """
-    function(currentTime, data, date, match) {
-        console.log(data)
-        if (!date || !match) return window.dash_clientside.no_update;
-        if (!data || Object.keys(data).length === 0 || !currentTime) return window.dash_clientside.no_update;
+        trigger_request = True
+        return no_update, trigger_request
 
-        const fps = 29.97002997002997;
-        const frame = Math.round(currentTime * fps).toString();
-
-        const points = [{
-                    x: [50, 50],
-                    y: [-60, 0],
-                    mode: "lines",
-                    line: { color: "black", width: 2 },
-                    showlegend: false
-                }]
-
-        for (const property in data){
-            points.push({x: [data[property].x[frame]],
-                        y: [data[property].y[frame]],
-                    mode: "markers",
-                    marker: { size: 12, color: "blue" },
-                    showlegend: false})
-        }
-
-        return {
-            data: points,
-            layout: {
-                xaxis: {
-                    title: "x",
-                    range: [100, 0],
-                    autorange: false,
-                    dtick: 1
-                },
-                yaxis: {
-                    title: "y",
-                    range: [0, -60],
-                    autorange: false,
-                    dtick: 1
-                },
-                height: 300,
-                margin: { t: 0, b: 0, l: 0, r: 0 },
-                plot_bgcolor: "lightgreen"
-            }
-        };
-    }
-    """,
-    Output("map_chart", "figure"), 
+# Réaliser le graphique de la position des joueurs
+@callback(
     [
-        Input("player_video", "currentTime"),
-        Input("store_coordinates", "data"),
-        Input("select_date_video", "value"),
-        Input("select_match_video", "value")
+        Output("map_chart", "figure"),
+        Output("map_chart", "style"),
+        Output("start_request", "data"),
+        Output("trigger_request", "data", allow_duplicate=True)
     ],
-    prevent_initial_call=True
-)    
-
-
-
-# Déclencher le script JS pour dessiner sur la vidéo
-clientside_callback(
-    """
-    function(date, match) {
-        if (date && match) {
-            setTimeout(function() {
-                window.trigger();
-            }, 500);
-        }
-        return "";
-    }
-    """,
-    Output("store_inutile_utile", "data", allow_duplicate=True),
-    Input("select_date_video", "value"),
-    Input("select_match_video", "value"),
-     prevent_initial_call=True
-    
+    [
+        Input("select_date_video", "value"),
+        Input("select_match_video", "value"),
+        Input("store_coordinates", "data"),
+        Input("player_video", "currentTime"),
+        State("start_request", "data")
+    ],
+    prevent_initial_call=True,
 )
-
-
-
-
-
-
-    
+def create_position_plot(date, match, data, time_video, start_request):
+    if date and match and data and time_video:
+        # Calculer la frame par rapport au temps de la vidéo
+        fps = 29.97002997002997
+        #if frame is None: time_video = 0
+        frame = round(time_video * fps)
+        # Si on sort de la range de la requête
+        if (frame < start_request or frame >= start_request + 15_000):
+            fig, fig_style, start_request, trigger_request = go.Figure(), hidden, frame, True
+            return fig, fig_style, start_request, trigger_request
+        # Si on est dans la range de la requête
+        else:
+            # On ne relance pas la requête
+            trigger_request = False
+            # Initialiser l'index
+            index = (frame - start_request) % 15_000
+            # Parcourir l'index pour récupérer les coordonnées
+            x, y = [], []
+            for player in data:
+                x.append(data[player]["x"][index])
+                y.append(data[player]["y"][index])
+            # Créer le graphique
+            fig = go.Figure(data=[go.Scatter(x=x, y=y, mode="markers", marker=dict(size=8))],
+                            layout=go.Layout(
+                                xaxis=dict(range=[100, 0], showticklabels=False, ticks="", showgrid=False),
+                                yaxis=dict(range=[0, -60], showticklabels=False, ticks="", showgrid=False),
+                                margin=dict(l=0, r=0, t=0, b=0),
+                                height=300,
+                                plot_bgcolor="lightgreen",
+                                shapes=[
+                                    dict(
+                                        type="line",
+                                        x0=50, x1=50,
+                                        y0=0, y1=-60,
+                                        line=dict(color="black", width=2)
+                                    )
+                                ]
+                            )
+                    )
+            fig_style = visible
+            return fig, fig_style, start_request, trigger_request
+    else:
+        fig, fig_style, start_request, trigger_request = go.Figure(), hidden, 0, True
+        return fig, fig_style, start_request, trigger_request
 

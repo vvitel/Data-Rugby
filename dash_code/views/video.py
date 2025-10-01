@@ -129,10 +129,12 @@ def gps_video(dic_date, dic_match, dic_joueur):
                             ),
                             # Mettre à jour le graphique en fonction de la vidéo
                             html.Br(),
-                            # Afficher position des joueurs
+                            # Stocker positions des joueurs
                             dcc.Store(id="store_coordinates"),
-                            # Stocker la frame actuelle de la vidéo,
-                            dcc.Store(id="current_frame", data=0),
+                            # Stocker la première frame de la requête,
+                            dcc.Store(id="start_request", data=0),
+                            # Stocker un booléen pour déclencher la requête pour avoir le positions
+                            dcc.Store(id="trigger_request", data=1),
                             # Sorties inutiles mais utiles pour clientside_callback
                             dcc.Store(id="store_inutile_utile"),
                             # Affichage graphique avec les positions
@@ -140,9 +142,9 @@ def gps_video(dic_date, dic_match, dic_joueur):
                                 dcc.Graph(
                                     id="map_chart",
                                     figure={},
-                                    style={"display": "block", "height": "300px", "width": "500px"}
+                                    style={"display": "none"}
                                 )
-                            )
+                            ),
                         ],
                         span=10,
                     ),
