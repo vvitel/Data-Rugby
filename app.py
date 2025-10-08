@@ -17,8 +17,8 @@ joueur_dic = [{"value": i["player"], "label": i["player"]} for i in mongo.get_di
 # Création du front de l"app
 front = create_layout(date_dic, match_dic, joueur_dic)
 
-# Code de l"application
-app = Dash(__name__)
+# Code de l'application
+app = Dash(__name__, title="DataRugby")
 server = app.server
 app.layout = front
 

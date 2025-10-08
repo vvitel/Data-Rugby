@@ -1,7 +1,8 @@
 import numpy as np
+import plotly.graph_objs as go
+from collections import defaultdict
 from dash import callback, clientside_callback, Output, Input, State, no_update
 from dash_code.repository.mongo import MongoDB
-import plotly.graph_objs as go
 
 # Connection à la base de données
 mongo = MongoDB()
@@ -95,8 +96,9 @@ def show_video(date, match, joueur, metric, action, value, marks):
         return lien, tps_sec, visible
     else:
         return "", 0, hidden
+    
 
-# Requêter la base de données pour avoir les positions des joueurs   
+# Requêter la base de données pour avoir les positions des joueurs
 @callback(
     [
         Output("store_coordinates", "data"),
@@ -124,6 +126,7 @@ def get_player_position(date, match, trigger_request, start_request):
         trigger_request = True
         return no_update, trigger_request
 
+
 # Réaliser le graphique de la position des joueurs
 @callback(
     [
@@ -137,18 +140,21 @@ def get_player_position(date, match, trigger_request, start_request):
         Input("select_match_video", "value"),
         Input("store_coordinates", "data"),
         Input("player_video", "currentTime"),
+        Input("select_joueur_video", "value"),
+        Input("select_metrique_video", "value"),
+        Input("select_action_video", "value"),
         State("start_request", "data")
     ],
     prevent_initial_call=True,
 )
-def create_position_plot(date, match, data, time_video, start_request):
-    if date and match and data and time_video:
+def create_position_plot(date, match, data, time_video, joueur, metric, action, start_request):
+    if all([date, match, time_video]) and not any([joueur, metric, action]):
         # Calculer la frame par rapport au temps de la vidéo
         fps = 29.97002997002997
         #if frame is None: time_video = 0
         frame = round(time_video * fps)
         # Si on sort de la range de la requête
-        if (frame < start_request or frame >= start_request + 15_000):
+        if (frame < start_request or frame >= start_request + 7_000):
             fig, fig_style, start_request, trigger_request = go.Figure(), hidden, frame, True
             return fig, fig_style, start_request, trigger_request
         # Si on est dans la range de la requête
@@ -156,7 +162,7 @@ def create_position_plot(date, match, data, time_video, start_request):
             # On ne relance pas la requête
             trigger_request = False
             # Initialiser l'index
-            index = (frame - start_request) % 15_000
+            index = (frame - start_request) % 7_000
             # Parcourir l'index pour récupérer les coordonnées
             x, y = [], []
             for player in data:
@@ -185,4 +191,3 @@ def create_position_plot(date, match, data, time_video, start_request):
     else:
         fig, fig_style, start_request, trigger_request = go.Figure(), hidden, 0, True
         return fig, fig_style, start_request, trigger_request
-

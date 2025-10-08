@@ -1,13 +1,13 @@
 dash==3.0.4
 dash_mantine_components==2.0.0
 dash-player==1.1.0
+gunicorn==23.0.0
 numpy==2.3.0
 opencv-python==4.12.0.88
 pandas==2.3.0
 plotly==6.1.2
 pymongo==4.13.0
 pyproj==3.7.1
+python-dotenv==1.1.1
 scikit-learn==1.7.0
 scipy==1.15.3
-python-dotenv==1.1.1
-gunicorn==23.0.0

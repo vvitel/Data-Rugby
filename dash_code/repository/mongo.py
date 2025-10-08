@@ -99,8 +99,8 @@ class MongoDB:
             {"$match": {"game": match, "date": date}},
             {
                 "$project": {
-                    "x": {"$slice": ["$x", start, start + 15000]},
-                    "y": {"$slice": ["$y", start, start + 15000]},
+                    "x": {"$slice": ["$x", start, start + 7_000]},
+                    "y": {"$slice": ["$y", start, start + 7_000]},
                     "player": "$player",
                 }
             },
