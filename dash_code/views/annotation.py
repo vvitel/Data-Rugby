@@ -73,12 +73,14 @@ def annot_live():
                                                     children=[
                                                         dmc.Button("Gagnée", id="btn_scrum_o_won", variant="filled", color="green", fullWidth=True),
                                                         dmc.Button("Perdue", id="btn_scrum_o_lose", variant="filled", color="red", fullWidth=True),
+                                                        dmc.Button("Volée", id="btn_scrum_o_stolen", variant="filled", color="orange", fullWidth=True),
                                                     ]
                                                 ),
                                                 dmc.ButtonGroup(
                                                     children=[
                                                         dmc.Button("Gagnée", id="btn_lineout_o_won", variant="filled", color="green", fullWidth=True),
                                                         dmc.Button("Perdue", id="btn_lineout_o_lose", variant="filled", color="red", fullWidth=True),
+                                                        dmc.Button("Volée", id="btn_lineout_o_stolen", variant="filled", color="orange", fullWidth=True)
                                                     ]
                                                 )
                                             ],
@@ -99,12 +101,14 @@ def annot_live():
                                                     children=[
                                                         dmc.Button("Gagnée", id="btn_scrum_d_won", variant="filled", color="green", fullWidth=True),
                                                         dmc.Button("Perdue", id="btn_scrum_d_lose", variant="filled", color="red", fullWidth=True),
+                                                        dmc.Button("Volée", id="btn_scrum_d_stolen", variant="filled", color="orange", fullWidth=True)
                                                     ]
                                                 ),
                                                 dmc.ButtonGroup(
                                                     children=[
                                                         dmc.Button("Gagnée", id="btn_lineout_d_won", variant="filled", color="green", fullWidth=True),
                                                         dmc.Button("Perdue", id="btn_lineout_d_lose", variant="filled", color="red", fullWidth=True),
+                                                        dmc.Button("Volée", id="btn_lineout_d_stolen", variant="filled", color="orange", fullWidth=True)
                                                     ]
                                                 )
                                             ],
@@ -246,7 +250,31 @@ def annot_live():
                                                         dmc.Button("Contre", id="btn_kick_against", variant="filled", color="red", fullWidth=True),
                                                     ]
                                                 ),
+                                        dmc.Center(dmc.Text("Plaquage", size="lg")),
+                                        dmc.ButtonGroup(
+                                                    children=[
+                                                        dmc.Button("Réussi", id="btn_tackle_success", variant="filled", color="green", fullWidth=True),
+                                                        dmc.Button("Raté", id="btn_tackle_fail", variant="filled", color="red", fullWidth=True),
+                                                    ]
+                                                )
                                     ]
+                                ),
+                                dmc.Card(
+                                    id="card_penalty_precision",
+                                    children=[
+                                        dmc.Group(
+                                            children=[
+                                                dmc.Button("Ruck", id="btn_penalty_ruck", variant="filled", color="teal", fullWidth=True),
+                                                dmc.Button("Mêlée", id="btn_penalty_scrum", variant="filled", color="cyan", fullWidth=True),
+                                                dmc.Button("Touche", id="btn_penalty_lineout", variant="filled", color="blue", fullWidth=True),
+                                                dmc.Button("Plaquage", id="btn_penalty_tackle", variant="filled", color="indigo", fullWidth=True),
+                                                dmc.Button("Hors jeu", id="btn_penalty_offside", variant="filled", color="violet", fullWidth=True)
+                                            ],
+                                        grow=True,
+                                        wrap="nowrap"
+                                        )
+                                    ],
+                                    style={"display": "none"}
                                 )
                             ]
                         )

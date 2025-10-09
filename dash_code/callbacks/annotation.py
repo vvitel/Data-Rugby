@@ -12,6 +12,7 @@ mongo = MongoDB()
         Output("alert_annot_add", "hide"),
         Output("alert_suppr_add", "hide"),
         Output("alert_send_data", "hide"),
+        Output("card_penalty_precision", "style")
     ],
     [
         Input("btn_debmt1", "n_clicks"),
@@ -22,12 +23,16 @@ mongo = MongoDB()
         Input("btn_senddata", "n_clicks"),
         Input("btn_scrum_o_won", "n_clicks"),
         Input("btn_scrum_o_lose", "n_clicks"),
+        Input("btn_scrum_o_stolen", "n_clicks"),
         Input("btn_lineout_o_won", "n_clicks"),
         Input("btn_lineout_o_lose", "n_clicks"),
+        Input("btn_lineout_o_stolen", "n_clicks"),
         Input("btn_scrum_d_won", "n_clicks"),
         Input("btn_scrum_d_lose", "n_clicks"),
+        Input("btn_scrum_d_stolen", "n_clicks"),
         Input("btn_lineout_d_won", "n_clicks"),
         Input("btn_lineout_d_lose", "n_clicks"),
+        Input("btn_lineout_d_stolen", "n_clicks"),
         Input("btn_ets_try", "n_clicks"),
         Input("btn_ets_conversion_success", "n_clicks"),
         Input("btn_ets_conversion_fail", "n_clicks"),
@@ -44,6 +49,11 @@ mongo = MongoDB()
         Input("btn_opponent_drop_fail", "n_clicks"),
         Input("btn_penalty_for", "n_clicks"),
         Input("btn_penalty_against", "n_clicks"),
+        Input("btn_penalty_ruck", "n_clicks"),
+        Input("btn_penalty_scrum", "n_clicks"),
+        Input("btn_penalty_lineout", "n_clicks"),
+        Input("btn_penalty_tackle", "n_clicks"),
+        Input("btn_penalty_offside", "n_clicks"),
         Input("btn_turnover_for", "n_clicks"),
         Input("btn_turnover_against", "n_clicks"),
         Input("btn_freekick_for", "n_clicks"),
@@ -51,7 +61,9 @@ mongo = MongoDB()
         Input("btn_linebreak_for", "n_clicks"),
         Input("btn_linebreak_against", "n_clicks"),
         Input("btn_kick_for", "n_clicks"),
-        Input("btn_kick_against", "n_clicks")
+        Input("btn_kick_against", "n_clicks"),
+        Input("btn_tackle_success", "n_clicks"),
+        Input("btn_tackle_fail", "n_clicks")
     ],
     [State("input_namegame", "value"), State("store_annot", "data")],
 )
@@ -64,12 +76,16 @@ def annotate_game(
     btn_senddata,
     btn_scrum_o_won,
     btn_scrum_o_lose,
+    btn_scrum_o_stolen,
     btn_lineout_o_won,
     btn_lineout_o_lose,
+    btn_lineout_o_stolen,
     btn_scrum_d_won,
     btn_scrum_d_lose,
+    btn_scrum_d_stolen,
     btn_lineout_d_won,
     btn_lineout_d_lose,
+    btn_lineout_d_stolen,
     btn_ets_try,
     btn_ets_conversion_success,
     btn_ets_conversion_fail,
@@ -86,6 +102,11 @@ def annotate_game(
     btn_opponent_drop_fail,
     btn_penalty_for,
     btn_penalty_against,
+    btn_penalty_ruck,
+    btn_penalty_scrum,
+    btn_penalty_lineout,
+    btn_penalty_tackle,
+    btn_penalty_offside,
     btn_turnover_for,
     btn_turnover_against,
     btn_freekick_for,
@@ -94,6 +115,8 @@ def annotate_game(
     btn_linebreak_against,
     btn_kick_for,
     btn_kick_against,
+    btn_tackle_success,
+    btn_tackle_fail,
     input_namegame,
     store_annot
 ):
@@ -101,8 +124,9 @@ def annotate_game(
     # Magie noire
     hide_add_alert, hide_suppr_alert, hide_send_data = True, True, True
     ctx = callback_context
+    show_card_penalty = {"display": "none"}
     if not ctx.triggered:
-        return store_annot, hide_add_alert, hide_suppr_alert, hide_send_data
+        return store_annot, hide_add_alert, hide_suppr_alert, hide_send_data, show_card_penalty
 
     button_id = ctx.triggered[0]["prop_id"].split(".")[0]
     data_annot = list(store_annot or [])
@@ -116,12 +140,16 @@ def annotate_game(
     "btn_finmt2": "finmt2",
     "btn_scrum_o_won": "scrum_o_won",
     "btn_scrum_o_lose": "scrum_o_lose",
+    "btn_scrum_o_stolen": "scrum_o_stolen",
     "btn_lineout_o_won": "lineout_o_won",
     "btn_lineout_o_lose": "lineout_o_lose",
+    "btn_lineout_o_stolen": "lineout_o_stolen",
     "btn_scrum_d_won": "scrum_d_won",
     "btn_scrum_d_lose": "scrum_d_lose",
+    "btn_scrum_d_stolen": "scrum_d_stolen",
     "btn_lineout_d_won": "lineout_d_won",
     "btn_lineout_d_lose": "lineout_d_lose",
+    "btn_lineout_d_stolen": "lineout_d_stolen",
     "btn_ets_try": "ets_try",
     "btn_ets_conversion_success": "ets_conversion_success",
     "btn_ets_conversion_fail": "ets_conversion_fail",
@@ -146,12 +174,33 @@ def annotate_game(
     "btn_linebreak_against": "linebreak_against",
     "btn_kick_for": "kick_for",
     "btn_kick_against": "kick_against",
+    "btn_tackle_success": "tackle_success",
+    "btn_tackle_fail": "tackle_fail"
     }
+
+    # Dictionnaire des boutons et noms d'événements pour les pénalités
+    events_penalty = {
+        "btn_penalty_ruck": "penalty_ruck",
+        "btn_penalty_scrum": "penalty_scrum",
+        "btn_penalty_lineout": "penalty_lineout",
+        "btn_penalty_tackle": "penalty_tackle",
+        "btn_penalty_offside": "penalty_offside"
+        }
 
     # Ajouter une annotation
     if button_id in events:
         data_annot.append((events[button_id], now))
         hide_add_alert = False
+
+    # Afficher la carte de précision des pénalités si pertinent
+    if button_id in ["btn_penalty_for", "btn_penalty_against"]:
+        show_card_penalty = {"display": "block"}
+    
+    # Annoter la raison de la pénalité
+    if button_id in events_penalty:
+        data_annot.append((events_penalty[button_id], now))
+        hide_add_alert = False
+        show_card_penalty = {"display": "none"}
 
     # Supprimer la dernière annotation
     elif button_id == "btn_suppr" and data_annot:
@@ -171,4 +220,4 @@ def annotate_game(
         # Reset les annotations après envoi
         data_annot = []
 
-    return data_annot, hide_add_alert, hide_suppr_alert, hide_send_data
+    return data_annot, hide_add_alert, hide_suppr_alert, hide_send_data, show_card_penalty
