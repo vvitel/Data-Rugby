@@ -12,6 +12,7 @@ class MongoDB:
     collection_video = None
     collection_annotation = None
     collection_coordinates = None
+    collection_coordinates_backup = None
 
     def __new__(cls):
         if cls._instance is None:
@@ -23,6 +24,7 @@ class MongoDB:
             cls._instance.collection_video = db["video"]
             cls._instance.collection_annotation = db["annotation"]
             cls._instance.collection_coordinates = db["coordinates"]
+            cls._instance.collection_coordinates_backup = db["coordinates_backup"]
         return cls._instance
     
     def get_distinct_players(self, collection):
@@ -110,3 +112,16 @@ class MongoDB:
                 pipeline, maxTimeMS=60000, allowDiskUse=True
             )
         )
+    
+    def find_coordinates_by_date_and_match_version2(self, date, match, start):
+        return self.collection_coordinates_backup.find(
+            {
+                "game": match,
+                "date": date,
+                "frame": {"$gte": start, "$lte": start + 7_000}
+            },
+            {
+                "_id": 0
+            }
+        )
+

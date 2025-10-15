@@ -1,6 +1,6 @@
 import numpy as np
+import pandas as pd
 import plotly.graph_objs as go
-from collections import defaultdict
 from dash import callback, clientside_callback, Output, Input, State, no_update
 from dash_code.repository.mongo import MongoDB
 
@@ -117,15 +117,20 @@ def show_video(date, match, joueur, metric, action, value, marks):
 def get_player_position(date, match, trigger_request, start_request):
     if (date and match and trigger_request):
         trigger_request = False
-        document_coordinates = mongo.find_coordinates_by_date_and_match(date, match, int(start_request))
+        document_coordinates = mongo.find_coordinates_by_date_and_match_version2(date, match, int(start_request))
+        df = pd.DataFrame(document_coordinates)
+        df = df.sort_values(by=["player", "frame"])
+        print(df)
         res = {}
-        for doc in document_coordinates:
-            res[doc["player"]] = {"x": doc["x"], "y": doc["y"]}
+        for player, group in df.groupby("player"):
+            res[player] = {
+            "x": group["x"].tolist(),
+            "y": group["y"].tolist()
+        }
         return res, trigger_request
     else:
         trigger_request = True
         return no_update, trigger_request
-
 
 # Réaliser le graphique de la position des joueurs
 @callback(
